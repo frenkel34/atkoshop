@@ -1,0 +1,29 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-advanced-http": {
+      "PACKAGE_NAME": "nl.atkoinc.shop"
+    },
+    "cordova-plugin-customurlscheme": {
+      "URL_SCHEME": "mycoolapp",
+      "PACKAGE_NAME": "nl.atkoinc.shop"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "nl.atkoinc.shop"
+    },
+    "cordova-universal-links-plugin": {
+      "PACKAGE_NAME": "nl.atkoinc.shop"
+    }
+  },
+  "dependent_plugins": {
+    "cordova-plugin-file": {
+      "PACKAGE_NAME": "nl.atkoinc.shop"
+    }
+  }
+}

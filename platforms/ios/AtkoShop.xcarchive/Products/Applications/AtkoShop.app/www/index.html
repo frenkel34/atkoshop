@@ -1,0 +1,457 @@
+<!-- 
+	WELCOME TO ATKOSHOP
+
+	This is a demo application for Okta, which demonstrates 
+	how to integrate Cordova into Okta. It also demonstartes 
+	a single code base for both web and mobile and a Single
+	page app (SPA) handling refresh tokens.
+	The demo has a second element to it, which is a concept 
+	of redacted JWT's, that do not have PII data in the
+	payload, and requiring stronger auth to get full access
+
+	This demonstration code is NOT to be used in production!
+
+	Author: Frank Benus
+	Demo: Atkoshop
+	Date: December 29th 2020 (Happy new year all!)
+	License: This code is licensed under MIT
+--> 
+
+<!-- Adding in required libraries -->
+<script src="cordova.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<script src="assets/js/pkce.js"></script>
+<script src="assets/js/general.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+<script>
+	// Setting glabal parameters in localStorage
+	localStorage.setItem('oktaurl', 'https://atkoshop.okta.com');
+	localStorage.setItem('logging', true);
+	localStorage.setItem('clientid', '0oa5i4euoIg19ZWRq416');
+	localStorage.setItem('authorizationserver', 'default');
+	localStorage.setItem('scopes', 'openid profile access_low');
+
+	// Check if the code runs on mobile or in the browser
+	if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent))
+	{
+		// In case of mobile
+		writeLog('log: the application runs on mobile');
+		localStorage.setItem('platform', 'mobile');
+		localStorage.setItem('portalurl', 'nl.atkoinc.shop');
+		localStorage.setItem('portalrenewurl', 'https://www.atkoinc.nl/renew');
+		localStorage.setItem('portalcallbackurl', 'https://www.atkoinc.nl/callback');
+	}
+	else
+	{
+		// In case of browser
+		writeLog('log: the application runs in the browser');
+		localStorage.setItem('platform', 'browser');
+		localStorage.setItem('portalurl', 'http://localhost:8000');
+		localStorage.setItem('portalrenewurl', 'http://localhost:8000/callback');
+		localStorage.setItem('portalcallbackurl', 'http://localhost:8000/callback');
+	}
+
+
+//	if (localStorage.getItem('portalurl').startsWith('http://')) {
+//		writeLog('Log: the application is not running under https')
+		// execute on desktop while testing
+//		var authorisationCode = getParameterByName('code');
+//		var message = getParameterByName('message');
+//		  	if (authorisationCode) {
+//		    	getTokensWithCode(authorisationCode);
+//		  	}
+//		  	if (message) {
+//		  		processMessage(message);
+//		  	}
+//	} else {
+//		// Execute on mobile on return from idp
+//		writeLog('-> the app seems to run as a native mobile app')
+
+		function handleOpenURL(url) {
+		  setTimeout(function() {
+		  	// process authorization code
+			alert(url)
+		  	var authorisationCode = getParameterFromString(url, 'code');
+		  	var message = getParameterFromString(url, 'message');
+		  	if (authorisationCode) {
+		    	getTokensWithCode(authorisationCode);
+		  	}
+		  	if (message) {
+		  		processMessage(message);
+		  	}
+		  }, 0);
+		}
+//	}
+</script>
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="images/icon.png" />
+		<title>Atko inc :: webshop</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!-- end libraries -->
+		<style>
+			.cnt_homeBanner {
+				display: none;
+			}
+		</style>
+		<script type="text/javascript">
+
+
+		</script>
+	</head>
+	<body class="is-preload homepage">
+		<div id="page-wrapper">
+			<!-- Header -->
+				<div id="header-wrapper">
+					<header id="header" class="container">
+
+						<!-- Logo -->
+							<div id="logo">
+								<h1><a href="index.html">Atko shop v2</a></h1>
+								<span>by Okta inc</span>
+							</div>
+
+						<!-- Nav -->
+							<nav id="nav">
+								<ul>
+									<li class="current"><a href="index.html">Home</a></li>
+									<li><a id="btn_profile_menu" class="lnk_profile" href="account.html">Profile</a></li>
+									<li><a id="btn_logout_menu" class="lnk_logout" href="logout.html">Logout</a></li>
+								</ul>
+							</nav>
+
+					</header>
+				</div>
+
+			<!-- Banner -->
+				<div id="banner-wrapper">
+					<div id="banner" class="box container">
+						<!-- Start Message content -->
+						<div id="" class="row">
+							<div class="col-7 col-12-medium messageLine">
+								<h4 id="lbl_message"></h4>
+							</div>
+						</div>
+						<!-- End Message content -->
+						<!-- Start Banner for unknown user -->
+						<div id="cnt_noAuth" class="row cnt_homeBanner">
+							<div class="col-7 col-12-medium">
+								<h2>Welcome to Atko Shop</h2>
+								<p>A demo brought to you by Okta</p>
+							</div>
+							<div class="col-5 col-12-medium">
+								<ul>
+									<li><a id="btn_login" href="#" target="_self" class="button large icon solid fa-arrow-circle-right lnk_login">Login</a></li>
+									<li><a href="#" class="button alt large icon solid fa-arrow-circle-right">Register</a></li>
+								</ul>
+							</div>
+						</div>
+						<!-- End Banner for unknown user -->
+						<!-- Start Banner for authenticated user -->
+						<div id="cnt_Auth" class="row cnt_homeBanner">
+							<div class="col-7 col-12-medium">
+								<h2>Welcome <span class="lbl_displayName">[name]</span></h2>
+								<p>A demo brought to you by Okta</p>
+							</div>
+							<div class="col-5 col-12-medium">
+								<ul>
+									<li><a id="btn_shop" href="#" class="button large icon solid fa-arrow-circle-right">Go shop</a></li>
+									<li><a id="btn_tokens" href="#" class="button alt large icon solid fa-arrow-circle-down lnk_tokens">Tokens</a></li>
+								</ul>
+							</div>
+						</div>
+						<!-- End Banner for authenticated user -->
+					</div>
+				</div>
+
+			<!-- Features -->
+				<div id="features-wrapper" class="cnt_tokens" style="display:none;">
+					<div class="container">
+						<div class="row">
+							<div class="col-6 col-12-medium">
+
+								<!-- Box -->
+									<section class="box feature">
+										<div class="inner">
+											<header>
+												<h2>Access token</h2> 
+												<p>This toke is valid for <span id="lbl_accesstoken_exp"></span>, more information here: <a id="lnk_accesstoken_inspect" target="_blank" href="#">token.dev</a></p>
+											</header>
+											<p>
+												<pre id="lbl_accesstoken" class="token"> 
+												</pre>
+											</p>
+											<header>
+												<h2>Refresh token</h2> 
+												<p>
+													This is your one-time refresh token: <span id="lbl_refreshtoken"></span><br><br>
+													<a href="#" class="button icon solid fa-star btn_renewtokens">Refresh now</a>
+												</p>
+											</header>
+
+										</div>
+									</section>
+
+							</div>
+							<div class="col-6 col-12-medium">
+
+								<!-- Box -->
+									<section class="box feature">
+										<div class="inner">
+											<header>
+												<h2>ID token</h2>
+												<p>valid for <span id="lbl_idtoken_exp"></span>, more information here: <a id="lnk_idtoken_inspect" target="_blank" href="#">token.dev</a></p>
+											</header> </p>
+											</header>
+											<p>
+												<pre id="lbl_idtoken" class="token"> 
+												</pre>
+											</p>
+										</div>
+									</section>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="features-wrapper">
+					<div class="container">
+						<div class="row">
+							<div class="col-4 col-12-medium">
+
+								<!-- Box -->
+									<section class="box feature">
+										<a href="#" class="image featured"><img src="images/1.jpg" alt="" /></a>
+										<div class="inner">
+											<header>
+												<h2>Sony X556TX-33</h2>
+												<p>Model year 2024</p>
+											</header>
+											<p>This latest model is now available for pre-order, and will blow you mind. The 128K resolution and 200 mega pixel camera ...</p><br>
+											<p><a class="button icon solid fa-arrow-circle-right btn_product">Go see</a></p>
+										</div>
+									</section>
+
+							</div>
+							<div class="col-4 col-12-medium">
+
+								<!-- Box -->
+									<section class="box feature">
+										<a href="#" class="image featured"><img src="images/2.jpg" alt="" /></a>
+										<div class="inner">
+											<header>
+												<h2>Audi XST3 GT</h2>
+												<p>Tomorrows future on four wheels</p>
+											</header>
+											<p>The latest addition to the XST family at Audi and never as fast as this one. Offered with a online only 'no test-drive' discount ...</p><br>
+											<p><a href="#" class="button icon solid fa-arrow-circle-right btn_product">Buy now</a></p>
+										</div>
+									</section>
+
+							</div>
+							<div class="col-4 col-12-medium">
+
+								<!-- Box -->
+									<section class="box feature">
+										<a href="#" class="image featured"><img src="images/3.jpg" alt="" /></a>
+										<div class="inner">
+											<header>
+												<h2>Harry Potter part 21</h2>
+												<p>Arnold Schwarzenegger's latest novel</p>
+											</header>
+											<p>As Arnold took over authoring the series, this deep space story line takes you beyond you have ever seen before...</p><br>
+											<p><a href="#" class="button icon solid fa-arrow-circle-right btn_product">Quick buy</a></p>
+										</div>
+									</section>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			<!-- Main -->
+				<div id="main-wrapper">
+					<div class="container">
+						<div class="row gtr-200">
+							<div class="col-4 col-12-medium">
+
+								<!-- Sidebar -->
+									<div id="sidebar">
+										<section class="widget thumbnails">
+											<h3>Newest products</h3>
+											<div class="grid">
+												<div class="row gtr-50">
+													<div class="col-6"><a href="#" class="image fit"><img src="images/4.jpg" alt="" /></a></div>
+													<div class="col-6"><a href="#" class="image fit"><img src="images/5.jpg" alt="" /></a></div>
+													<div class="col-6"><a href="#" class="image fit"><img src="images/6.jpg" alt="" /></a></div>
+													<div class="col-6"><a href="#" class="image fit"><img src="images/7.jpg" alt="" /></a></div>
+												</div>
+											</div>
+										</section>
+									</div>
+
+							</div>
+							<div class="col-8 col-12-medium imp-medium">
+
+								<!-- Content -->
+									<div id="content">
+										<section class="last">
+											<h2>This demo brings CIAM to the next level</h2>
+											<p>With a web and mobile experience, this webshop demo will demonstrate the ultimate experience for retail. As a customer authentication will be equaly easy on web as on mobile and security will be top nodge.</p>
+											<a href="https://www.okta.com/customer-identity/" target="_blank" class="button icon solid fa-arrow-circle-right">Continue Reading</a> or 
+											<a href="https://atkoshop.okta.com/login/signout" class="button alt icon solid fa-question-circle">End Okta session</a>
+										</section>
+									</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+			<!-- Footer -->
+				<div id="footer-wrapper">
+					<footer id="footer" class="container">
+						<div class="row">
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Links -->
+									<section class="widget links">
+										<h3>Random link</h3>
+										<ul class="style2">
+											<li><a href="#">Etiam feugiat condimentum</a></li>
+											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+											<li><a href="#">Sed porttitor cras in erat nec</a></li>
+											<li><a href="#">Felis varius pellentesque potenti</a></li>
+											<li><a href="#">Nullam scelerisque blandit leo</a></li>
+										</ul>
+									</section>
+
+							</div>
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Links -->
+									<section class="widget links">
+										<h3>More Stuff</h3>
+										<ul class="style2">
+											<li><a href="#">Etiam feugiat condimentum</a></li>
+											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+											<li><a href="#">Sed porttitor cras in erat nec</a></li>
+											<li><a href="#">Felis varius pellentesque potenti</a></li>
+											<li><a href="#">Nullam scelerisque blandit leo</a></li>
+										</ul>
+									</section>
+
+							</div>
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Links -->
+									<section class="widget links">
+										<h3>And also ...</h3>
+										<ul class="style2">
+											<li><a href="#">Etiam feugiat condimentum</a></li>
+											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+											<li><a href="#">Sed porttitor cras in erat nec</a></li>
+											<li><a href="#">Felis varius pellentesque potenti</a></li>
+											<li><a href="#">Nullam scelerisque blandit leo</a></li>
+										</ul>
+									</section>
+
+							</div>
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Contact -->
+									<section class="widget contact last">
+										<h3>Contact Us</h3>
+										<ul>
+											<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+											<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+											<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+											<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
+											<li><a href="#" class="icon brands fa-pinterest"><span class="label">Pinterest</span></a></li>
+										</ul>
+										<p><a target="_blank" href="http://stackoverflow.com">555 Fake Address<br />
+										Someville, XX 00000<br />
+										(555) 999-0000</a></p>
+									</section>
+
+							</div>
+						</div>
+					</footer>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
+    <script>
+
+
+    </script>
+<script>
+	// Execute when document is ready
+	$(document).ready(function(){
+        writeLog('-> document is ready');
+//		alert('Im ready master!')
+		checkAuthentionStatus()
+
+	})
+
+	// Execute when login button is clicked
+	$(".lnk_login").click(function() {
+		var codeVerifier = generateCodeVerifier();
+		var codeChallenge = generateCodeChallenge(codeVerifier);
+		localStorage.setItem('codeverifier', codeVerifier);
+		getAuthorisationCode(codeChallenge);
+	})
+
+	// Execute when shop button is clicked
+	$("#btn_shop").click(function(){
+		alert('This is not really a webshop (yet) ;)');
+	})
+
+	// Execute when tokens is clicked
+	$(".lnk_tokens").click(function() {
+		writeLog('-> display tokens div');
+		$(".cnt_tokens").slideToggle();
+
+		if ($("#btn_tokens").hasClass('fa-arrow-circle-up')===true) {
+			$("#btn_tokens").removeClass('fa-arrow-circle-up');
+			$("#btn_tokens").addClass('fa-arrow-circle-down');
+		} else {
+			$("#btn_tokens").removeClass('fa-arrow-circle-down');
+			$("#btn_tokens").addClass('fa-arrow-circle-up');
+
+		}
+	})
+
+	$(".btn_renewtokens").click(function() {
+		var refresh_token = $("#lbl_refreshtoken").text();
+		renewTokens(refresh_token);
+	})
+
+
+
+	document.addEventListener("deviceready", function () {
+	    universalLinks.subscribe('ul_callBack', function (eventData) {
+	        var authorisationCode = getParameterFromString(eventData.url, 'code');
+	        getTokensWithCode(authorisationCode);
+		
+	    });
+	});
+
+
+
+
+    </script>

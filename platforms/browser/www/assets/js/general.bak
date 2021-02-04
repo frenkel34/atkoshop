@@ -1,0 +1,564 @@
+// ------------------------------------------------------------------------------------------
+// Global parameters
+// ------------------------------------------------------------------------------------------
+
+	var orgUrl = 'https://atkoflowers.okta-emea.com';
+
+     localStorage.setItem('apiproxyurl', 'https://portal.atkoflowers.com/apiproxy/atkoproxy.asp'); 
+     localStorage.setItem('oktaurl', 'https://atkoflowers.okta-emea.com');
+     localStorage.setItem('portalurl', 'https://portal.atkoflowers.com');
+     localStorage.setItem('clientid', '0oa130mx43seIpgRq0i7');
+     localStorage.setItem('athorizationserver', 'aus130ivs24katSuH0i7');
+// ------------------------------------------------------------------------------------------
+// General functions
+// ------------------------------------------------------------------------------------------
+
+	function getParameterByName( name ) {
+		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+		var regexS = "[\\#?&]"+name+"=([^&#]*)";
+		var regex = new RegExp( regexS );
+		var results = regex.exec( window.location.href );
+		if( results == null )
+			return "";
+		else
+			return decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+
+	function randomString(){
+		var text = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		for( var i=0; i < 5; i++ )
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+		return text;
+	}
+
+	function parseJwt(token) {
+		if (token != null) {
+			var base64Url = token.split('.')[1];
+			var base64 = base64Url.replace('-', '+').replace('_', '/');
+			return JSON.parse(window.atob(base64));
+		} else {
+			logEvent('event occured: a invalid or empty token was parsed',5);
+		}
+	};
+
+	function logEvent(sMessage, iLevel) {
+		var iLoggingLevel = 2
+			// 1: log only tokens
+			// 2: log results of api comm
+			// 3: log functions
+			// 4: log page changes and navigation
+			// 5: log all
+		if (iLevel <= iLoggingLevel) {
+			console.log(sMessage);
+		}
+
+	}
+
+	function copyToClipboard(element, prefix) {
+		  var copyText = document.getElementById(element);
+		  console.log(copyText);
+		  copyText.select();
+		  document.execCommand("copy");
+		}
+	
+// ------------------------------------------------------------------------------------------
+// Token manager
+// ------------------------------------------------------------------------------------------
+
+	function introspectToken(sToken) {
+	  console.log('call function: introspectToken('+sToken+')');
+	  sUrl = localStorage.getItem('apiproxyurl') + '?contenttype=application/x-www-form-urlencoded&authorizationtype=Basic&authorizationvalue=MG9hMTMwbXg0M3NlSXBnUnEwaTc6eG9DT3dtVWdvOUUzR29YNy1CSGtnMDhqNnNUcG1TT1hTcHFEdmNXTQ==&endpoint=/oauth2/aus130ivs24katSuH0i7/v1/introspect?token='+ sToken +'&includekey=true&method=POST'
+	 $.ajax({
+	    url: sUrl,
+	    method: "POST"
+	  }).done(function(response) {
+	    console.log('result function: introspectToken = done');   
+	    console.log(response);
+	    sFormattedJwt = JSON.parse(response);
+	    console.log(sFormattedJwt);
+	    if (sFormattedJwt.active == true) {
+	    	alert('You have been succesfully authenticated');
+	    	$("#con_asset").show();
+	    }
+	    console.log(sFormattedJwt.active);
+	    localStorage.setItem('tm_guest_token', sToken);
+	    updatePrettyTokenList();
+	  }).fail(function(response) {
+	    console.log('result function: introspectToken = fail');   
+	    	alert('The token that you have provided was expired');
+	  })
+}
+
+
+		
+
+		function manageToken(sEvent, sScopes) {
+			logEvent('function called: manageToken('+sEvent+', '+sScopes+')', 3);
+			var sAccessToken = '';
+			var sAccessTokenFromUrl = getParameterByName('access_token');
+			var sTokenFromStorage = localStorage.getItem("tm_"+ sEvent)
+			var sTokenList = '';
+			for (var i = localStorage.length-1; i>=0; i--){
+				
+				var sKey = localStorage.key(i)
+				var sValue = localStorage.getItem(localStorage.key(i))
+				if (sKey.substring(0, 3) == 'tm_') {
+					sTokenList = sTokenList + sKey + ', ';
+				}
+			}
+			console.log('tokens available: '+ sTokenList);
+
+
+
+		localStorage.setItem("event", sEvent);
+		if (sAccessTokenFromUrl != '' || typeof sAccessTokenFromUrl == 'undefined') {
+			logEvent('event occured: access token found in url', 5);
+			localStorage.setItem("tm_"+sEvent, sAccessTokenFromUrl);
+			logEvent('event occured: token stored in tm_'+ sEvent);
+			bLogToken = true
+			sAccessToken = localStorage.getItem("tm_"+sEvent)
+			logEvent('result from token manager: current token on next log item',1);
+			logEvent(parseJwt(sAccessToken),1)
+			iCurrentUserId = parseJwt(sAccessToken).uid;
+			localStorage.setItem('user', iCurrentUserId);
+			window.location = 'dashboard.html';
+			
+		} else {
+			logEvent('event occured: no token found in url',5);
+			if (sTokenFromStorage != null) {
+				logEvent('event occured: a token was already available in token manager', 5);
+				logEvent(sTokenFromStorage, 1);
+				bLogToken = true
+			} else {
+				logEvent('event occured: new token needs to be requested at athorization server, redirecting to authorization server', 5);
+				var AuthorizationServerUrl = localStorage.getItem('oktaurl') + '/oauth2/'+ localStorage.getItem("athorizationserver") +'/v1/authorize?client_id='+ localStorage.getItem("clientid") +'&response_type=token&response_mode=fragment&scope='+ sScopes +'&redirect_uri='+ localStorage.getItem("portalurl") +'/authn.html&state=x&nonce=y'
+				console.log(AuthorizationServerUrl);
+				window.location = AuthorizationServerUrl
+//				console.log('EERSTE KEER OPEN AUC');
+				bLogToken = false
+
+			}
+		}
+	};
+
+	function getToken (sEvent) {
+		return localStorage.getItem("tm_"+ sEvent)
+	}
+
+	function updatePrettyTokenList() {
+		$("#lst_tokenlist").html('');
+		$("#lst_tokenlist").append('');
+		for (var i = 0; i < localStorage.length; i++){
+			var sKey = localStorage.key(i)
+			var sValue = localStorage.getItem(localStorage.key(i))
+			var sFormattedJwt = '';
+			var sScopes = '';
+			if (sKey.substring(0, 3) == 'tm_') {
+				sFormattedJwt = JSON.stringify(parseJwt(sValue))
+				sFormattedJwt = JSON.stringify(parseJwt(sValue),null,"\t");
+
+				sScopes = parseJwt(sValue).scp;
+				$("#lst_tokenlist").append('<li class="li_token" token="'+ sValue +'">'+ sKey+ ' (scopes: '+ sScopes +')</li>');
+//				$("#lst_tokenstore").append('<tr>'+ sFormattedJwt + '</pre>');
+			}
+		}		
+	}
+
+	function printTokenList() {
+		$("#tokenlist").html('');
+		$("#tokenlist").append('<tr><td width="10%""><u>key</u></td><td width="15%"><u>scopes</u></td><td><u>token</u></td></tr>');
+		for (var i = 0; i < localStorage.length; i++){
+			
+			var sKey = localStorage.key(i)
+			var sValue = localStorage.getItem(localStorage.key(i))
+			var sFormattedJwt = '';
+			var sScopes = '';
+			if (sKey.substring(0, 3) == 'tm_') {
+				sFormattedJwt = JSON.stringify(parseJwt(sValue))
+				sScopes = parseJwt(sValue).scp;
+				$("#tokenlist").append('<tr><td>'+ sKey+'</td><td>'+ sScopes +'</td><td><code class="prettyprint">'+ sFormattedJwt +'</code></td></tr>');
+			}
+		}
+	}
+// ------------------------------------------------------------------------------------------
+// User related functions
+// ------------------------------------------------------------------------------------------
+
+	function removeGrant(grantId) {
+		var sUserId = localStorage.getItem('user');
+		var r = confirm("Are you sure that you want to revoke this consent?");
+		if (r == true) {
+			sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=/api/v1/users/'+ sUserId +'/grants/'+ grantId +'&method=DELETE&includekey=true'
+		 	$.ajax({
+			  url: sUrl,
+			  method: "GET"
+			}).done(function(response) {
+				listConsent();
+				clearTokens();				
+			})
+		}
+	}
+
+	function listConsent() {
+		$("#lst_consentlist").html('');
+		var sUserId = localStorage.getItem('user');
+	  	sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=/api/v1/users/'+ sUserId +'/grants&method=GET&includekey=true'
+	 	$.ajax({
+		  url: sUrl,
+		  method: "GET"
+		}).done(function(response) {
+	      console.log('result function: listConsent = done'); 
+	      response = jQuery.parseJSON(response)
+	      console.log(response) ;
+	      var sAppendHtml = '';
+		   	for (i = 0; i < response.length; i++) { 
+				var created 	= response[i].created 
+				var grant 		= response[i].id
+				var scopeid     = response[i]._links.scope.title;
+				var client      = response[i]._links.client.title;
+				var status 	    = response[i].status
+				sAppendHtml 	= sAppendHtml + '<tr><td>'+ created +'</td><td>'+ client +'</td><td>'+ scopeid +'</td><td>'+ status +'</td><td style="padding-left:100px;"><input grant="'+ grant +'" class="btn_revoke_grant btn_general btn_red" type="button" value="remove" /></td><tr>'
+			}
+			$("#lst_consentlist").append(sAppendHtml);
+
+
+	    }).fail(function(response) {
+	      console.log('result function: listConsent = fail');   
+	    })
+
+	}
+
+	function deleteAccount() {
+		var sUserId = localStorage.getItem('user');
+//		alert('deleting user: ' + sUserId);
+	  	console.log('call function: deleteAccount('+sUserId +')');
+	  	sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=/api/v1/users/'+ sUserId +'&method=DELETE&includekey=true'
+	 	$.ajax({
+		  url: sUrl,
+		  method: "GET"
+		}).done(function(response) {
+	      console.log('result function: deleteAccount = done');   
+	    }).fail(function(response) {
+	      console.log('result function: deleteAccount = fail');   
+	    })
+
+	}
+			
+	function clearSessions() {
+		var sUserId = localStorage.getItem('user');
+	  	console.log('call function: clearSessions('+sUserId +')');
+	  	sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=/api/v1/users/'+ sUserId +'/sessions&oauthTokens=true&method=DELETE&includekey=true'
+	 	$.ajax({
+		  url: sUrl,
+		  method: "GET"
+		}).done(function(response) {
+	      console.log('result function: clearSessions = done');   
+   		  deleteAccount();
+   		  deleteAccount();
+	      alert('Your account has been permanently removed. You can register at any time to start a new account.');
+	      checkSession();
+   		  
+	  	}).fail(function(response) {
+	      console.log('result function: clearSessions = fail');   
+	  	})
+
+	}
+	
+
+	function activateUser(iId, bSendEmail) {
+	  console.log('call function: activateUser('+iId+','+bSendEmail+'');
+	  sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=/api/v1/users/'+ iId +'/lifecycle/activate?sendEmail=true&includekey=true&method=POST'
+	 $.ajax({
+	    url: sUrl,
+	    method: "POST"
+	  }).done(function(response) {
+	    console.log('result function: activateUser = done');   
+	    console.log(response);
+	    var oResult = jQuery.parseJSON(response);
+	    if (typeof oResult.id != 'undefined') {
+	      console.log('Your account is in the activation flow');
+	    } else {
+	      console.log(oResult);
+	    }
+	  }).fail(function(response) {
+	    console.log('result function: activateUser = fail');   
+	  })
+
+	}
+
+	function resetRecoveryQuestion(iId, bSendActivationEmail) {
+	  var sAnswer = randomString()
+	  console.log('set as answer: ' + sAnswer);
+	  sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=api/v1/users/'+ iId +'/credentials/change_recovery_question&includekey=true&method=PUT&body='
+	  var sBody = '{"credentials": {"recovery_question": {"question": "This is a fake Question","answer": "'+ sAnswer +'"}}';    
+	//  console.log(sBody);
+	  sUrl = sUrl + sBody;
+	 $.ajax({
+	    url: sUrl,
+	    method: "GET"
+	  }).done(function(response) {
+	    console.log('result function: resetRecoveryQuestion = done');   
+	    console.log(response);
+	    activateUser(iId, bSendActivationEmail)
+	  }).fail(function(response) {
+	    console.log('result function: resetRecoveryQuestion = fail');   
+	    console.log(response);
+	  })
+	}
+	
+
+
+	function createUser(sFirstName, sLastName, sEmail, sPassword, sLocale, bPreferMfa, bIsTrial, sCountryCode, sFlow) {
+	  if (sFlow == 'okta') {
+	    var bSendActivationEmail = true;
+	  } else {
+	    var bSendActivationEmail = false;
+	  }
+	  console.log('call function: createUser('+sFirstName+','+sLastName+','+sEmail+','+sPassword+','+sLocale+','+bPreferMfa+','+bIsTrial+','+sCountryCode+', '+ sFlow +')');
+	  sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=api/v1/users?activate=false&includekey=true&method=POST&language='+sLocale.substring(0,2)+'&body='
+	  var sBody = '{"profile": {"firstName": "'+ sFirstName +'","lastName": "'+ sLastName +'","email": "'+ sEmail +'","login": "'+ sEmail +'","locale": "'+ sLocale +'","preferMfa": "'+ bPreferMfa +'","isTrial": "'+ bIsTrial +'","countryCode": "'+ sCountryCode +'"},"groupIds": ["00g1613z1cAsZRPk80i7"],"credentials": {"password" : { "value": "'+ sPassword +'" }}}';    
+	  console.log(sBody);
+	  sUrl = sUrl + sBody;
+	 $.ajax({
+	    url: sUrl,
+	    method: "POST"
+	  }).done(function(response) {
+	    console.log('result function: createUser = done');   
+	    console.log(response);
+	    var oResult = jQuery.parseJSON(response);
+	    if (typeof oResult.id != 'undefined') {
+	      console.log('Your account has been created with id: '+ oResult.id);
+	      activateUser(oResult.id, bSendActivationEmail);
+	      alert('Your account has been created. Please check your email inbox to activate your account');
+	      window.location = document.location.href;
+	    } else {
+	      console.log(oResult);
+	      alert(oResult.errorCauses[0].errorSummary);
+	    }
+	  }).fail(function(response) {
+	    console.log('result function: createUser = fail');   
+	  })
+	}
+
+	function setAccount() {
+//		console.log('START SET ACCOUNT')
+		sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=api/v1/users/'+ localStorage.getItem('user') +'&includekey=true&method=GET'
+		 $.ajax({
+		    url: sUrl,
+		    method: "GET"
+		  }).done(function(response) {
+		  	console.log('function setAccount done');
+		  		response = jQuery.parseJSON(response)
+		  		console.log(response);
+				var sFirstname	= response.profile.firstName;
+				var sLastName	= response.profile.lastName;
+				var sTitle		= response.profile.title;
+				var sCompany	= response.profile.organization;
+				var bType		= response.profile.isTrial;
+				var sCountry	= response.profile.countryCode;
+				var sMfa 		= response.profile.preferMfa;
+				
+				
+				// Set defaults for type and target country
+				if (typeof bType == 'undefined' || typeof sCountry == 'undefined' || bType == '' || sCountry == '' || bType == 'null' || sCountry == 'null') {
+					console.log('Er staan defaults niet goed');
+					if (typeof bType == 'undefined' || bType==true) {
+						console.log('Default type is set to trial');
+						bType = true;
+					}
+					if (sCountry == '' || typeof sCountry == 'undefined' || sCountry == 'null') {
+						console.log('Default region is set to netherlands');
+						sCountry = 'NL';
+					}					
+					//updateAccount();
+				} else {
+//					console.log('All good ('+ sType + ',' + sCountry +')!');
+				}
+				// fill in the form
+				$("#inp_firstname").val(sFirstname);
+				$("#lbl_username").html('logged in as <br><b>'+ sFirstname +' '+ sLastName +'</b>');
+				$("#inp_lastname").val(sLastName);
+				$("#inp_title").val(sTitle);	
+				$("#inp_company").val(sCompany);
+				$("#inp_bType").val(bType.toString());
+				$("#inp_country").val(sCountry);
+				$("#inp_prefer_mfa").val(sMfa.toString());	
+				// console.log('DONE SET ACCOUNT')
+		  		console.log('start test ...');
+		  		if(response.profile.isTrial == false) {
+		  			console.log('this is not a trial account');
+		  			$("#men_help").show();
+		  			if (localStorage.getItem('user') == '00u2mvxllnwuYlGEO0i7') {
+			  			$("#men_saml").show();
+		  			}
+		  		} else {
+		  			console.log('this is account trial account');
+		  			$("#men_help").hide();
+		  			$("#men_saml").hide();
+		  		}
+
+
+		  }).fail(function(response) {
+		  	console.log('function setAccount failed');
+			console.log(response);
+			console.log('FAIL SET ACCOUNT')
+		  })
+	
+	}
+
+function updateAccount(mustClearTokens) {
+		var sFirstname	= $("#inp_firstname").val();
+		var sLastName	= $("#inp_lastname").val();
+		var sTitle		= $("#inp_title").val();
+		var sCompany	= $("#inp_company").val();
+		var sCountry	= $("#inp_country").val();
+		var sMfa 		= $("#inp_prefer_mfa").val();
+		var sTrial 		= $("#inp_bType").val();
+
+		sBody 	= '{"profile": {"firstName": "'+ sFirstname +'","lastName": "'+ sLastName +'","isTrial": "'+ sTrial +'","title": "'+ sTitle +'","organization": "'+ sCompany +'","countryCode": "'+ sCountry +'","preferMfa": "'+ sMfa +'"}}'; 
+		sUrl 	= localStorage.getItem('apiproxyurl') + '?endpoint=/api/v1/users/'+ localStorage.getItem('user') +'&includekey=true&method=POST&body='+ sBody
+
+		console.log(sBody)
+		 $.ajax({
+		    url: sUrl,
+		    method: "GET"
+		  }).done(function(response) {
+		  	console.log('function setAccount done');
+		  		response = jQuery.parseJSON(response)
+		  		console.log(response);
+		  		if (mustClearTokens === 'true') {
+			  		alert('Your account has been saved and your tokens have been cleared');
+			    	clearTokens();
+					manageToken('authn', 'openid profile');		  
+		  		} else {
+		  			alert('Your account has been saved');
+		  		}
+		}).fail(function(response) {
+		  	console.log('function setAccount failed');
+			console.log(response);
+		 })
+	
+	}
+
+	function clearTokens() {
+		for (var i = localStorage.length-1; i>=0; i--){
+			
+			var sKey = localStorage.key(i)
+			var sValue = localStorage.getItem(localStorage.key(i))
+			var sFormattedJwt = '';
+			var sScopes = '';
+			if (sKey.substring(0, 3) == 'tm_') {
+				localStorage.setItem(sKey, '');
+				localStorage.removeItem(sKey);
+				//delete localStorage[sKey];
+			}
+		}
+
+	}
+
+	function checkSession() {
+		$.ajax({
+			url: orgUrl + '/api/v1/users/me',
+			type: 'GET',
+			xhrFields: { withCredentials: true },
+			accept: 'application/json'
+		}).done(function (response) {
+			localStorage.setItem('user', response.id)
+			//console.log('Uit de checksession: '+response.id)
+		    console.log('result function: checkSession = done with id '+ localStorage.getItem('user'));   
+		}).fail(function(response) {
+		    console.log('result function: checkSession = fail');   
+			window.location = localStorage.getItem('portalurl');
+		})
+	}
+
+	function closeSession() {
+		$.ajax({
+			url: localStorage.getItem('oktaurl') + '/api/v1/sessions/me',
+			type: 'DELETE',
+			xhrFields: { withCredentials: true },
+			accept: 'application/json'
+		}).done(function(data) {
+			var startUrl = localStorage.getItem('portalurl');
+			window.localStorage.clear();
+			window.location = 'https://portal.atkoflowers.com';
+		}).fail(function(data) {
+			var startUrl = localStorage.getItem('portalurl');
+			window.localStorage.clear();
+			window.location = 'https://portal.atkoflowers.com';
+		})
+	}		
+
+
+	function checkSession2() {
+	var settings = {
+	  "async": true,
+	  "crossDomain": true,
+	  "url": orgUrl + "/api/v1/users/me",
+	  "method": "GET",
+	  "headers": {
+	    "accept": "application/json",
+	    "content-type": "application/json",
+	    "cache-control": "no-cache",
+	    "Allow-Control-Allow-Origin": "*"
+	  }
+	}		
+		 $.ajax(settings).done(function(response) {
+		  	console.log('function checkSession done');
+	  		response = jQuery.parseJSON(response)
+	  		console.log(response);
+		  }).fail(function(response) {
+		  	console.log('function checkSession failed');
+			console.log(response);
+			window.location = localStorage.getItem('portalurl');
+		  })
+	}
+
+// ------------------------------------------------------------------------------------------
+// Group related functions
+// ------------------------------------------------------------------------------------------
+	function setRegionGroups() {
+	 sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=api/v1/groups?q=Region:&limit=10&includekey=true&method=GET'
+	 $.ajax({
+	    url: sUrl,
+	    method: "GET"
+	  }).done(function(response) {
+	  	var aMemberships = getGroupMemberships();
+	  	console.log(aMemberships);
+	    console.log('result function: setGroups = done');   
+	    response = jQuery.parseJSON(response)
+	   	$("#con_regions").html('');
+	   	var sAppendHtml = '';
+	   	for (i = 0; i < response.length; i++) { 
+			var sFullname 	= response[i].profile.name 
+			var sRegionname = sFullname.replace('Region: ', '');
+			var sRegionId 	= response[i].id 
+			sAppendHtml 	= sAppendHtml + '<input style="text-transform: capitalize;" class="inp_checkbox" type="checkbox" name="region_'+ sRegionId +'"/>'+ sRegionname +'<br/>'
+			console.log(sRegionname + ' with id '+ sRegionId);
+
+		}
+	   	$("#con_regions").html(sAppendHtml);
+
+	  }).fail(function(response) {
+	    console.log('result function: setGroups = fail');   
+	    console.log(response);
+	  })
+	}
+
+	function getGroupMemberships() {
+		sUrl = localStorage.getItem('apiproxyurl') + '?endpoint=api/v1/users/'+ localStorage.getItem('user') +'/groups&includekey=true&method=GET'
+		 $.ajax({
+		    url: sUrl,
+		    method: "GET"
+		  }).done(function(response) {
+		  	console.log('function getGroupMemberships done');
+			return response;
+		  }).fail(function(response) {
+		  	console.log('function getGroupMemberships failed');
+			return response;
+		  })
+	}
+
+	

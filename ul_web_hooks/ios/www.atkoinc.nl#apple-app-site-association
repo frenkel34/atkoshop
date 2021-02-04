@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "2683YDGHXN.nl.atkoinc.shop",
+        "paths": [
+          "/callback",
+          "/app",
+          "/renew"
+        ]
+      }
+    ]
+  }
+}

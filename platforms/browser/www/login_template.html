@@ -1,0 +1,166 @@
+<!-- 
+	WELCOME TO ATKOSHOP
+
+	This is a demo application for Okta, which demonstrates 
+	how to integrate Cordova into Okta. It also demonstartes 
+	a single code base for both web and mobile and a Single
+	page app (SPA) handling refresh tokens.
+	The demo has a second element to it, which is a concept 
+	of redacted JWT's, that do not have PII data in the
+	payload, and requiring stronger auth to get full access
+
+	This demonstration code is NOT to be used in production!
+
+	Author: Frank Benus
+	Demo: Atkoshop
+	Date: December 29th 2020 (Happy new year all!)
+	License: This code is licensed under MIT
+--> 
+
+<!-- Adding in required libraries -->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="icon" type="image/png" href="images/icon.png" />
+		<title>Atko inc :: login</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload homepage">
+		<div id="page-wrapper">
+			<!-- Header -->
+				<div id="header-wrapper">
+					<header id="header" class="container">
+
+						<!-- Logo -->
+							<div id="logo">
+								<h1><a href="index.html">Atko shop v2</a></h1>
+								<span>by Okta inc</span>
+							</div>
+					</header>
+				</div>
+
+			<!-- Banner -->
+				<div id="banner-wrapper">
+					<div id="banner" class="box container">
+						<!-- Start Banner for unknown user -->
+						<div id="cnt_noAuth" class="row cnt_homeBanner">
+							<div class="col-12 col-12-medium">
+								<h2>Welcome to Atko Shop</h2>
+
+							</div>
+						</div>
+						<!-- End Banner for unknown user -->
+					</div>
+				</div>
+			<!-- Features -->
+				<div id="features-wrapper" class="cnt_tokens" style="display:block;">
+					<div class="container">
+						<div class="row">
+							<div class="col-12 col-12-medium">
+
+								<!-- Box -->
+									<section class="box feature">
+										<div class="inner">
+											<header>
+												<h2>Login with your account</h2> 
+												<p>Please login with your account or register if you are new.</p>
+											</header>
+											<p>
+												<center>[ widget goes here ]</center>
+											</p>
+										</div>
+									</section>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			<!-- Footer -->
+				<div id="footer-wrapper">
+					<footer id="footer" class="container">
+						<div class="row">
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Links -->
+									<section class="widget links">
+										<h3>Need help?</h3>
+										<ul class="style2">
+											<li><a href="#">Etiam feugiat condimentum</a></li>
+											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+											<li><a href="#">Sed porttitor cras in erat nec</a></li>
+											<li><a href="#">Felis varius pellentesque potenti</a></li>
+											<li><a href="#">Nullam scelerisque blandit leo</a></li>
+										</ul>
+									</section>
+
+							</div>
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Links -->
+									<section class="widget links">
+										<h3>More Stuff</h3>
+										<ul class="style2">
+											<li><a href="#">Etiam feugiat condimentum</a></li>
+											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+											<li><a href="#">Sed porttitor cras in erat nec</a></li>
+											<li><a href="#">Felis varius pellentesque potenti</a></li>
+											<li><a href="#">Nullam scelerisque blandit leo</a></li>
+										</ul>
+									</section>
+
+							</div>
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Links -->
+									<section class="widget links">
+										<h3>And also ...</h3>
+										<ul class="style2">
+											<li><a href="#">Etiam feugiat condimentum</a></li>
+											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+											<li><a href="#">Sed porttitor cras in erat nec</a></li>
+											<li><a href="#">Felis varius pellentesque potenti</a></li>
+											<li><a href="#">Nullam scelerisque blandit leo</a></li>
+										</ul>
+									</section>
+
+							</div>
+							<div class="col-3 col-6-medium col-12-small">
+
+								<!-- Contact -->
+									<section class="widget contact last">
+										<h3>Contact Us</h3>
+										<ul>
+											<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+											<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+											<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+											<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
+											<li><a href="#" class="icon brands fa-pinterest"><span class="label">Pinterest</span></a></li>
+										</ul>
+										<p><a target="_blank" href="http://stackoverflow.com">555 Fake Address<br />
+										Someville, XX 00000<br />
+										(555) 999-0000</a></p>
+									</section>
+
+							</div>
+						</div>
+					</footer>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
