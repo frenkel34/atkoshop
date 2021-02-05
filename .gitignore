@@ -6,10 +6,7 @@ bin/*
 !/plugins/fetch.json
 plugins/*
 platforms/ios
-plaform/browser/cordova
-plaform/browser/cordova/platform_www
-plaform/browser/cordova/browser.json
-plaform/browser/cordova/confix.xml
+
 
 node_modules
 www/index.js
