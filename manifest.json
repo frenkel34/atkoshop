@@ -4,8 +4,8 @@
   "name": "AtkoShop",
   "short_name": "AtkoShop",
   "version": "nl.atkoinc.shop",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
-  "author": "Apache Cordova Team",
+  "description": "This application demonstrates a real-life optimization for reducing end user friction in retail. It uses Okta redacted access tokens.",
+  "author": "Frank Benus",
   "icons": [
     {
       "src": "icon.png",

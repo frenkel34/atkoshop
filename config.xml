@@ -2,10 +2,10 @@
 <widget id="nl.atkoinc.shop" version="1.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>AtkoShop</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        This application demonstrates a real-life optimization for reducing end user friction in retail. It uses Okta redacted access tokens. 
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="benusfrank@gmail.com" href="http://oktanacious.com">
+        Frank Benus
     </author>
     <icon src="icon.png" />
     <content src="index.html" />
