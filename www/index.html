@@ -76,16 +76,16 @@
 		// In case of browser
 		writeLog('log: the application runs in the browser');
 		localStorage.setItem('platform', 'browser');
-		localStorage.setItem('portalurl', 'http://localhost:8000');
-		localStorage.setItem('portalrenewurl', 'http://localhost:8000');
-		localStorage.setItem('portalcallbackurl', 'http://localhost:8000');
+		localStorage.setItem('portalurl', 'https://atkoshop.netlify.app/');
+		localStorage.setItem('portalrenewurl', 'https://atkoshop.netlify.app/');
+		localStorage.setItem('portalcallbackurl', 'https://atkoshop.netlify.app/');
 	}
 </script>
 <!DOCTYPE HTML>
 <html>
 	<head>
 		<link rel="icon" type="image/png" href="images/icon.png" />
-		<title>Atko inc :: Shop</title>
+		<title>AtkoShop: Happy shopping</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<meta http-equiv="cache-control" content="Private" />
@@ -847,7 +847,7 @@
 			var redirectUri 		= localStorage.getItem('portalrenewurl')
 			var requestedScopes 	= 'openid profile access_full'
 			var authorisationCode 	= getParameterFromString(eventData.url, 'code');
-			if (localhost.getItem('event') == 'buy_step_1_load_data') {
+			if (localStorage.getItem('event') == 'buy_step_1_load_data') {
 				landingPage			= 'buy'
 			} else {
 				landingPage			= 'profile'
