@@ -408,3 +408,40 @@ function setProducts(productArray) {
 	}
 }
 
+	function test302() {
+		if (authorisationCode) {
+			var settings = {
+			  'url': 'https://yougotsaas.oktapreview.com/oauth2/v1/authorize?client_id=0oa196wwmwSuKAjQb0x7&response_type=code&redirect_uri=http://localhost:3000/login/callback&scope=profile openid email&state=1234&idp=0oausfsv1B7S7YOnS0x6&code_challenge_method=S256&code_challenge=dTf6dOHabOKbILDaivC375ZQEPv2fgQBN-KOekXDziM',
+			  'method': 'POST',
+			  'timeout': 0,
+			  'headers': {
+			    'Accept': 'application/json',
+			    'Content-Type': 'application/x-www-form-urlencoded',
+	            'Access-Control-Allow-Origin': '*',
+	            'origin': 'https://www.atkoinc.nl/callback'
+			  }
+			};
+			if (localStorage.getItem('platform') == 'mobile') {
+				// if the user is on mobile execute this:
+			    cordova.plugin.http.sendRequest(token_url, settings, function(response) {
+			      alert(JSON.parse(response.data))
+			    }, function(response) {
+					alert('Some error is coming...');
+			    	alert(JSON.stringify(response));
+			    });
+
+			} else {
+				// if the user is in the browser, do this:
+				$.ajax(settings)
+				.done(function (response) {
+			      alert(JSON.parse(response.data))
+				})
+				.fail(function (response) {
+					alert('Some error is coming...');
+			    	alert(JSON.stringify(response));
+				});				
+			}
+		
+
+}
+	}

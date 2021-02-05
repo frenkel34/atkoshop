@@ -76,9 +76,9 @@
 		// In case of browser
 		writeLog('log: the application runs in the browser');
 		localStorage.setItem('platform', 'browser');
-		localStorage.setItem('portalurl', 'https://frenkel34.github.io/atkoshop/');
-		localStorage.setItem('portalrenewurl', 'https://frenkel34.github.io/atkoshop/');
-		localStorage.setItem('portalcallbackurl', 'https://frenkel34.github.io/atkoshop/');
+		localStorage.setItem('portalurl', 'http://localhost:8000');
+		localStorage.setItem('portalrenewurl', 'http://localhost:8000');
+		localStorage.setItem('portalcallbackurl', 'http://localhost:8000');
 	}
 </script>
 <!DOCTYPE HTML>
@@ -88,8 +88,8 @@
 		<title>Atko inc :: webshop</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
-		<meta HTTP-EQUIV="Expires" CONTENT="-1">
+		<meta http-equiv="cache-control" content="Private" />
+		<meta http-equiv="Expires" content="600" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<!-- end libraries -->
 		<script type="text/javascript">
@@ -208,7 +208,7 @@
 
 								<!-- Box -->
 									<section class="box feature">
-										<a href="#" class="image featured btn_product" productIndex="0"><img style="display:none;" class="lbl_image_0" src="images/none.jpg" alt="" /></a>
+										<a href="#" class="image featured btn_product" productIndex="0"><img style="display:none;" class="lbl_image_0" src="images/3.jpg" alt="" /></a>
 										<div class="inner">
 											<header>
 												<h2 class="lbl_title_0"></h2>
@@ -225,7 +225,7 @@
 
 								<!-- Box -->
 									<section class="box feature">
-										<a href="#" class="image featured btn_product" productIndex="1"><img style="display:none;" class="lbl_image_1" src="images/none.jpg" alt="" /></a>
+										<a href="#" class="image featured btn_product" productIndex="1"><img style="display:none;" class="lbl_image_1" src="images/3.jpg" alt="" /></a>
 										<div class="inner">
 											<header>
 												<h2 class="lbl_title_1"></h2>
@@ -242,7 +242,7 @@
 
 								<!-- Box -->
 									<section class="box feature">
-										<a href="#" class="image featured btn_product" productIndex="2"><img style="display:none;" class="lbl_image_2" src="images/none.jpg" alt="" /></a>
+										<a href="#" class="image featured btn_product" productIndex="2"><img style="display:none;" class="lbl_image_2" src="images/3.jpg" alt="" /></a>
 										<div class="inner">
 											<header>
 												<h2 class="lbl_title_2"></h2>
@@ -847,7 +847,7 @@
 			var redirectUri 		= localStorage.getItem('portalrenewurl')
 			var requestedScopes 	= 'openid profile access_full'
 			var authorisationCode 	= getParameterFromString(eventData.url, 'code');
-			if (localStorage.getItem('event') == 'buy_step_1_load_data') {
+			if (localhost.getItem('event') == 'buy_step_1_load_data') {
 				landingPage			= 'buy'
 			} else {
 				landingPage			= 'profile'
