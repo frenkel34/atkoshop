@@ -12,7 +12,7 @@
     <br />
     The concepts demonstrated are:
     <ul>
-    	<li>Single code base for web and mobile (Apche Cordova)</li>
+    	<li>Single code base for web and mobile (Apache Cordova)</li>
     	<li>Authentication with Okta via Authorization code flow with PKCE</li>
     	<li>Redacted access tokens to prevent PII spill and fraud</li>
     	<li>Seamless end user experience with everlasting refresh tokens</li>
