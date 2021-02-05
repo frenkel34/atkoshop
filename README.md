@@ -11,8 +11,6 @@
     This is a demonstration of the use of redacted access tokens combined with Okta as an Authorization server. It uses a Javascript application that is build on top of Apache Cordova, enabling the code to be compiled to both web as well as mobile (iOS tested).<br />
     <br />
     <strong>NOTE: This is a demo, and the code is not tested nor written to be used in production!</strong>
-  </p>
-
     <br />
     <a href="https://github.com/frenkel34/atkoshop"><strong>Explore the docs »</strong></a>
     <br />
@@ -57,11 +55,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Product Name Screen Shot][product-screenshot]](https://atkoshop.netlify.app/images/screenshot.png)
 
 Here's a blank template to get started:
 **To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`github_username`, `repo_name`, `twitter_handle`, `email`, `project_title`, `project_description`
+`frenkel34`, `atkoshop`, `okta`, `atkoshop@okta-demo.nl`, `AtkoShop`, `Okta demonstration for redacted access tokens and Cordova in retail`
 
 
 ### Built With
@@ -89,7 +87,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/frenkel34/atkoshop.git
    ```
 2. Install NPM packages
    ```sh
@@ -110,7 +108,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/frenkel34/atkoshop/issues) for a list of proposed features (and known issues).
 
 
 
@@ -137,9 +135,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email
+Your Name - [@okta](https://twitter.com/okta) - atkoshop@okta-demo.nl
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/frenkel34/atkoshop](https://github.com/frenkel34/atkoshop)
 
 
 
@@ -156,15 +154,15 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo.svg?style=for-the-badge
-[license-url]: https://github.com/github_username/repo/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/frenkel34/repo.svg?style=for-the-badge
+[contributors-url]: https://github.com/frenkel34/repo/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/frenkel34/repo.svg?style=for-the-badge
+[forks-url]: https://github.com/frenkel34/repo/network/members
+[stars-shield]: https://img.shields.io/github/stars/frenkel34/repo.svg?style=for-the-badge
+[stars-url]: https://github.com/frenkel34/repo/stargazers
+[issues-shield]: https://img.shields.io/github/issues/frenkel34/repo.svg?style=for-the-badge
+[issues-url]: https://github.com/frenkel34/repo/issues
+[license-shield]: https://img.shields.io/github/license/frenkel34/repo.svg?style=for-the-badge
+[license-url]: https://github.com/frenkel34/repo/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/github_username
+[linkedin-url]: https://linkedin.com/in/frenkel34
