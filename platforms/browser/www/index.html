@@ -76,9 +76,9 @@
 		// In case of browser
 		writeLog('log: the application runs in the browser');
 		localStorage.setItem('platform', 'browser');
-		localStorage.setItem('portalurl', 'http://localhost:8000');
-		localStorage.setItem('portalrenewurl', 'http://localhost:8000');
-		localStorage.setItem('portalcallbackurl', 'http://localhost:8000');
+		localStorage.setItem('portalurl', 'https://frenkel34.github.io/atkoshop/');
+		localStorage.setItem('portalrenewurl', 'https://frenkel34.github.io/atkoshop/');
+		localStorage.setItem('portalcallbackurl', 'https://frenkel34.github.io/atkoshop/');
 	}
 </script>
 <!DOCTYPE HTML>
@@ -845,7 +845,7 @@
 			var redirectUri 		= localStorage.getItem('portalrenewurl')
 			var requestedScopes 	= 'openid profile access_full'
 			var authorisationCode 	= getParameterFromString(eventData.url, 'code');
-			if (localhost.getItem('event') == 'buy_step_1_load_data') {
+			if (localStorage.getItem('event') == 'buy_step_1_load_data') {
 				landingPage			= 'buy'
 			} else {
 				landingPage			= 'profile'
