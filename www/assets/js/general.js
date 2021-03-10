@@ -343,8 +343,8 @@ function getTokenValidity(jwtToken) {
 				$("#btn_header_secondary").text('Debug');
 				$("#btn_header_secondary").addClass('lnk_tokens');
 			} else {
-				$("#lbl_title").text('Happy shopping');
-				$("#lbl_oneliner").text('The best products in the biz');
+				$("#lbl_title").text('Welcome');
+				$("#lbl_oneliner").text('Rest insured, we have you covered');
 				$(".btn_buynow").hide();
 				$("#btn_header_primary").text('Login');
 				$("#btn_header_primary").addClass('lnk_login');
