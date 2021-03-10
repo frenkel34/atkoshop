@@ -9,7 +9,7 @@ window.settings = {
 	},
 	"urls": {}, // See settings below
 	"app": {
-		"name": "Atko Financal",
+		"name": "Atko Finance",
 		"color": "#0000ff",
 		"title": "Atko Insurance",
 		"logging": true,
