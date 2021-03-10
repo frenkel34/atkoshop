@@ -37,9 +37,9 @@ if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|
 		window.settings.urls.oktalogout 	= settings.okta.oktaurl + '/login/signout?fromURI=https://www.atkoinc.nl/app/?message=okta session ended'
 	} else {
 		window.settings.platform 			= 'browser';
-		window.settings.urls.url 			= 'http://localhost:8000';
-		window.settings.urls.renewurl 		= 'http://localhost:8000';
-		window.settings.urls.callbackurl 	= 'http://localhost:8000';
+		window.settings.urls.url 			= 'https://atkoinsurance.netlify.app';
+		window.settings.urls.renewurl 		= 'https://atkoinsurance.netlify.app';
+		window.settings.urls.callbackurl 	= 'https://atkoinsurance.netlify.app';
 		window.settings.urls.oktalogout 	= settings.okta.oktaurl + '/login/signout?fromURI='+ settings.urls.url;
 	}
 
