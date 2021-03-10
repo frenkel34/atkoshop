@@ -1,860 +1,509 @@
 <!-- 
-	WELCOME TO ATKOSHOP
+  WELCOME TO ATKOSHOP
 
-	This is a demo application for Okta, which demonstrates 
-	how to integrate Cordova into Okta. It also demonstartes 
-	a single code base for both web and mobile and a Single
-	page app (SPA) handling refresh tokens.
-	The demo has a second element to it, which is a concept 
-	of redacted JWT's, that do not have PII data in the
-	payload, and requiring stronger auth to get full access
+  This is a demo application for Okta, which demonstrates 
+  how to integrate Cordova into Okta. It also demonstartes 
+  a single code base for both web and mobile and a Single
+  page app (SPA) handling refresh tokens.
+  The demo has a second element to it, which is a concept 
+  of redacted JWT's, that do not have PII data in the
+  payload, and requiring stronger auth to get full access
 
-	This demonstration code is NOT to be used in production!
+  This demonstration code is NOT to be used in production!
 
-	Author: Frank Benus
-	Demo: Atkoshop
-	Date: December 29th 2020 (Happy new year all!)
-	License: This code is licensed under MIT
+  Author: Frank Benus
+  Demo: Atkoshop
+  Date: December 29th 2020 (Happy new year all!)
+  License: This code is licensed under MIT
 
-	Remarks to remember:
-	- No support for query params on iOS UL
-	- redirecturi for auth code and tokens must be equal
-	- 
+  App settings:
+	okta.oktaurl: 				The (custom) url Okta runs on, e.g. "https://subdomain.okta.com"
+	okta.clientid: 				The client id of the application in Okta, e.g. "A11A111AAA1A11A1A1"
+	okta.authorizationserver: 	The "default" or custom authorization server in Okta, e.g. "default" or "A11A111AAA1"
+	okta.basic_scopes: 			The basic scopes the app needs for OIDC, e.g. "openid profile"
+	okta.access_low_scope: 		The name of the scope for basic non-sensitive access in Okta, e.g. "access_low"
+	okta.access_full_scope: 	The name of the scope for basic non-sensitive access in Okta, e.g. "access_full"
+	urls.platform: 				The type of platform the user is on, e.g. "mobile" or "browser"
+	urls.url 					The url of the app itself, e.g. "http://localhost" for browser or "nl.atkoinc.shop" for mobile
+	urls.renewurl 				The url to callback to on renewing the tokens, e.g. "http://localhost" for browser or an Apple Universal Link for iOS
+	urls.callbackurl 			The url to callback to, e.g. "http://localhost" for browser or an Apple Universal Link for iOS
+	app.name 					Name of the app or company behind the app
+	app.color 					The color of the logo on the top, other elements to be added to depend on this
+	app.title 					The title of the page in browser
+	app.logging 				set to false to limit the logging in console
+	app.yourname 				Only used in a few places, e.g. for buy confirmation signature
+	app.buy_label 				Default "Buy" but in non-ecommerce it overwrites some buttons and labels e.g. to "Subscribe"
+	app.pay_label 				Default "Pay" but in non-ecommerce it overwrites some buttons and labels e.g. to "Confirm"
+	app.ecommerce 				Set to false to hide price and payment options
 --> 
 
 <!-- Adding in required libraries -->
-
+<script src="settings.js"></script>
 <script src="cordova.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<script src="assets/js/crypto-js.min.js"></script>
 <script src="assets/js/pkce.js"></script>
 <script src="assets/js/general.js"></script>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
-<script>
-	// Setting glabal parameters in localStorage
-	localStorage.setItem('oktaurl', 'https://auth.atkoinc.nl');
-	localStorage.setItem('logging', true);
-	localStorage.setItem('clientid', '0oa5i4euoIg19ZWRq416');
-	localStorage.setItem('authorizationserver', 'default');
-	localStorage.setItem('scopes', 'openid profile access_low');
-
-	var productArray = [{
-  		"title": "Ford X556TX-33",
-  		"subtitle": "Model year 2024",
-  		"image": "https://www.carmax.com/~/media/images/carmax/com/articles/best-awd-cars/10-2019-dodge-challenger-r-t-scat-pack_evox.jpg",
-  		"intro": "This latest model is now available for pre-order, is brand new. With 10k HP ...",
-  		"price": '$ 115.000',
-  		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse at efficitur mauris. Quisque eros nulla, pulvinar ac efficitur non, tempor at ante. Etiam facilisis molestie magna, gravida maximus massa molestie ut. Nunc ac velit finibus, blandit purus sed, tempor erat. Aliquam posuere augue scelerisque rutrum congue. Donec quis finibus erat, a maximus ligula. Nulla hendrerit magna turpis, ut porta metus ornare nec. In sit amet mattis justo. In id fermentum ante, nec aliquam dolor. Vivamus ut mauris tempus tellus vulputate pharetra. Maecenas laoreet leo sapien, a aliquam orci accumsan eu. Nunc quis nulla rhoncus, convallis lectus id, posuere erat. Integer sit amet metus nec risus eleifend porta nec eget odio."
-	}, {
-  		"title": "Audi XST3 GT",
-  		"subtitle": "Tomorrows future on four wheels",
-  		"image": "https://www.carmax.com/~/media/images/carmax/com/articles/best-awd-cars/07-2018-dodge-charger-rt_evox_newnew.jpg",
-  		"intro": "The latest addition to the XST family at Audi and never as fast as this one. Offered with a online only 'no test-drive' discount ...",
-  		"price": '$ 44.000',
-  		"description": "Proin elementum eget tellus at imperdiet. Phasellus pellentesque vulputate fringilla. Proin suscipit eleifend ligula sit amet porttitor. Etiam rhoncus purus magna, vitae dictum massa convallis non. Ut venenatis iaculis congue. Quisque blandit consequat lacus. Nulla tellus massa, egestas sed lacus eget, pharetra elementum orci. Cras placerat gravida cursus. Quisque dignissim rhoncus justo, nec ullamcorper magna. Aliquam volutpat lacus a eros eleifend cursus. Curabitur luctus enim turpis, nec venenatis nibh euismod et. Praesent vel enim ac lectus fermentum maximus a vitae eros. Morbi sagittis mi arcu, et fermentum augue viverra id. Donec luctus, sem sit amet mattis feugiat, ligula tellus sollicitudin mauris, quis fringilla risus tortor eget felis. Aliquam et viverra mauris."
-	}, {
-  		"title": "Proto type 21",
-  		"subtitle": "Arnold Schwarzenegger version",
-  		"image": "https://www.carmax.com/~/media/images/carmax/com/articles/best-awd-cars/09-2018-ford-taurus-limited_evox--new.jpg",
-  		"intro": "The newest model in a line of older models that will blow your mind and knock you off you feet, for real...",
-  		"price": '$21.500',
-  		"description": "Duis eleifend rhoncus odio quis ornare. Ut a tincidunt arcu. Cras suscipit at augue eget euismod. Maecenas imperdiet porta lorem sed vestibulum. Phasellus massa leo, laoreet non turpis in, efficitur sagittis mauris. Etiam maximus tincidunt velit, at accumsan arcu lacinia eget. Cras sodales purus feugiat mi ullamcorper aliquam. In dictum dui dui. Vivamus ac efficitur dui. Phasellus porta quis nisl nec auctor."
-	}];
-	localStorage.setItem('products', productArray)
-
-	// Check if the code runs on mobile or in the browser
-	if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent))
-	{
-		// In case of mobile
-		writeLog('log: the application runs on mobile');
-		localStorage.setItem('platform', 'mobile');
-		localStorage.setItem('portalurl', 'nl.atkoinc.shop');
-		localStorage.setItem('portalrenewurl', 'https://www.atkoinc.nl/renew');
-		localStorage.setItem('portalcallbackurl', 'https://www.atkoinc.nl/callback');
-	}
-	else
-	{
-		// In case of browser
-		writeLog('log: the application runs in the browser');
-		localStorage.setItem('platform', 'browser');
-		localStorage.setItem('portalurl', 'https://atkoshop.netlify.app/');
-		localStorage.setItem('portalrenewurl', 'https://atkoshop.netlify.app/');
-		localStorage.setItem('portalcallbackurl', 'https://atkoshop.netlify.app/');
-	}
-</script>
+<script src="assets/js/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+<script src="assets/js/app.js"></script>
+<!-- Start Html for SPA -->
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<link rel="icon" type="image/png" href="images/icon.png" />
-		<title>AtkoShop: Happy shopping</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta http-equiv="cache-control" content="Private" />
-		<meta http-equiv="Expires" content="60" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<!-- end libraries -->
-		<script type="text/javascript">
-		</script>
-	</head>
-	<body class="is-preload homepage">
-		<div id="page-wrapper">
-			<!-- Top Header and menu -->
-			<div id="header-wrapper">
-				<header id="header" class="container">
+  <head>
+    <link rel="icon" type="image/png" href="images/icon.png" />
+    <title>Visit okta.com</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="cache-control" content="Private" />
+    <meta http-equiv="Expires" content="60" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <script type="text/javascript">
+    </script>
+  </head>
+  <body class="is-preload homepage">
+    <div id="page-wrapper">
+      <!-- html frame: header and menu -->
+      <div id="header-wrapper">
+        <header id="header" class="container">
+        <!-- html frame: header and menu -->
+            <div id="logo">
+              <h1><a class="lbl_app_name" href="index.html">Cordova</a></h1>
+              <span>a demo by <a target ="_new" href="https://www.okta.com">Okta inc</a></span>
+            </div>
+        <!-- html frame: menu items -->
+            <nav id="nav">
+              <ul>
+                <li class="menu_item_home"><a href="index.html?event=home">Home</a></li>
+                <li class="menu_item_profile"><a class="lnk_profile" href="index.html?event=profile">Profile</a></li>
+                <li><a class="lnk_app_logout" href="index.html?event=logout">Logout</a></li>
+              </ul>
+            </nav>
+        </header>
+      </div>
+      <!-- html frame: banner with big buttons -->
+        <div id="banner-wrapper">
+          <div id="banner" class="box container">
+            <div class="row cnt_homeBanner">
+              <div class="col-7 col-12-medium">
+                <h2 id="lbl_title">Welcome to Okta</h2>
+                <p id="lbl_oneliner">A demo brought to you by <a href="https://www.okta.com">Okta</a></p>
+              </div>
+              <div class="col-5 col-12-medium">
+                <ul>
+                  <li><a id="btn_header_primary" href="#" target="_self" class="button large icon solid fa-arrow-circle-right">Login</a></li>
+                  <li><a id="btn_header_secondary" href="#" class="button alt large icon solid fa-arrow-circle-right">Register</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      <!-- html frame: debug panel (hidden by default)-->
+        <div id="features-wrapper" class="cnt_tokens" style="display:none;">
+          <div class="container">
+            <div class="row">
+              <div class="col-6 col-12-medium">
+              	<!-- html frame: access and refresh token -->
+                  <section class="box feature">
+                    <div class="inner">
+                      <header>
+                        <h2>Access token</h2> 
+                        <p>This token is valid for <span id="lbl_accesstoken_exp"></span>, more information here: <a id="lnk_accesstoken_inspect" target="_blank" href="#">token.dev</a></p>
+                      </header>
+                      <p>
+                        <pre id="lbl_accesstoken" class="token"> 
+                        </pre>
+                      </p>
+                      <header>
+                        <h2>Refresh token</h2> 
+                        <p>
+                          This is your one-time refresh token: <span id="lbl_refreshtoken"></span><br><br>
+                          <a href="#" class="button icon solid fa-star btn_renewtokens">Refresh now</a>
+                        </p>
+                      </header>
+                    </div>
+                  </section>
+              </div>
+              <div class="col-6 col-12-medium">
+              	<!-- html frame: id token -->
+                  <section class="box feature">
+                    <div class="inner">
+                      <header>
+                        <h2>ID token</h2>
+                        <p>valid for <span id="lbl_idtoken_exp"></span>, more information here: <a id="lnk_idtoken_inspect" target="_blank" href="#">token.dev</a></p>
+                      </header> </p>
+                      </header>
+                      <p>
+                        <pre id="lbl_idtoken" class="token"> 
+                        </pre>
+                      </p>
+                    </div>
+                  </section>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="features-wrapper" class="cnt_tokens" style="display:none;">
+          <div class="container">
+            <div class="row">
+            <!-- html frame: application settings -->
+              <div class="col-12 col-12-medium">
+                  <section class="box feature">
+                    <div class="inner">
+                      <header>
+                        <h2>Settings</h2> 
+                        <p>These are the settings configured by <span class="lbl_your_name">the solutions engineer(s)</span>:</p>
+                      </header>
+                      <p>
+                        <pre id="lbl_settings" class="token"> 
+                        </pre>
+                      </p>
+                    </div>
+                  </section>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- html frame: show products array -->
+        <div id="pag_home" class="page">
+          <div id="features-wrapper">
+            <div class="container">
+              <!-- html frame: show products -->
+              <div class="row">
+              	<!-- html frame: show first product -->
+                <div class="col-4 col-12-medium">
+                  <section class="box feature">
+                    <a href="#" class="image featured btn_product" productIndex="0"><img style="display:none;" class="lbl_image_0" src="" alt="" /></a>
+                    <div class="inner">
+                      <header>
+                        <h2 class="lbl_title_0"></h2>
+                        <p class="lbl_subtitle_0"></p>
+                      </header>
+                      <p class="lbl_intro_0"></p><br>
+                      <p class="ecommerce"><span class="lbl_price_0 price_batch"></span></p>
+                      <p><a class="button icon solid fa-arrow-circle-right btn_product btn_buynow" productIndex="0">Buy Now</a></p>
+                    </div>
+                  </section>
+              </div>
+              <!-- html frame: show second product -->
+              <div class="col-4 col-12-medium">
+                  <section class="box feature">
+                    <a href="#" class="image featured btn_product" productIndex="1"><img style="display:none;" class="lbl_image_1" src="" alt="" /></a>
+                    <div class="inner">
+                      <header>
+                        <h2 class="lbl_title_1"></h2>
+                        <p class="lbl_subtitle_1"></p>
+                      </header>
+                      <p class="lbl_intro_1"></p><br>
+                      <p class="ecommerce"><span class="lbl_price_1 price_batch"></span></p>
+                      <p><a class="button icon solid fa-arrow-circle-right btn_product btn_buynow" productIndex="1">Buy Now</a></p>
+                    </div>
+                  </section>
+              </div>
+              <!-- html frame: show third product -->
+              <div class="col-4 col-12-medium">
+                  <section class="box feature">
+                    <a href="#" class="image featured btn_product" productIndex="2"><img style="display:none;" class="lbl_image_2" src="" alt="" /></a>
+                    <div class="inner">
+                      <header>
+                        <h2 class="lbl_title_2"></h2>
+                        <p class="lbl_subtitle_2"></p>
+                      </header>
+                      <p class="lbl_intro_2"></p><br>
+                      <p class="ecommerce"><span class="lbl_price_2 price_batch"></span></p>
+                      <p><a class="button icon solid fa-arrow-circle-right btn_product btn_buynow" productIndex="2">Buy Now</a></p>
+                    </div>
+                  </section>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- html frame: show bottom container -->
+        <div id="main-wrapper">
+          <div class="container">
+            <div class="row gtr-200">
+              <div class="col-4 col-12-medium">
+                <!-- html frame: Four more images -->
+                  <div id="sidebar">
+                    <section class="widget thumbnails">
+                      <h3>Newest products</h3>
+                      <div class="grid">
+                        <div class="row gtr-50">
+                          <div class="col-6"><a href="#" class="image fit"><img src="images/4.jpg" alt="" /></a></div>
+                          <div class="col-6"><a href="#" class="image fit"><img src="images/5.jpg" alt="" /></a></div>
+                          <div class="col-6"><a href="#" class="image fit"><img src="images/6.jpg" alt="" /></a></div>
+                          <div class="col-6"><a href="#" class="image fit"><img src="images/7.jpg" alt="" /></a></div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+              </div>
+              <div class="col-8 col-12-medium imp-medium">
+                <!-- html frame: link to Okta and end Okta session button -->
+                <div id="content">
+                  <section class="last">
+                    <h2>This demo brings CIAM to the next level</h2>
+                    <p>With a web and mobile experience, this webshop demo will demonstrate the ultimate experience for retail. As a customer authentication will be equaly easy on web as on mobile and security will be top nodge.</p>
+                    <a href="https://www.okta.com/customer-identity/" target="_blank" class="button icon solid fa-arrow-circle-right">Continue Reading</a>  
+                    <a href="#" class="button alt icon solid fa-question-circle lnk_okta_logout">End Okta session</a>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>        
+      </div>
+<!-- html frame: profile page -->
+      <div id="pag_profile" class="page">
+        <div id="features-wrapper" class="cnt_profile">
+          <div class="container">
+            <!-- html frame: account form with disabled form elements for read-only -->
+            <div class="row">
+              <div class="col-6 col-12-medium">
+                <section class="box feature">
+                  <div class="inner">
+                    <header>
+                      <h2>Account</h2> 
+                      <p>You are currently logged in as <span class="lbl_firstname">an unknown user</span>. This is the data we have on record for you. Click to load the full data and edit your profile. The data on this page is taken from the custom claims in the ID token.<br><br></p>
+                      <strong>first name</strong><br>
+                      <input type="text" disabled class="inp_firstname dataValue blocked inp_enable_full_access" value=""/><br>
+                      <strong>last name</strong><br>
+                      <input type="text" disabled class="inp_lastname dataValue blocked inp_enable_full_access" value=""/><br>
+                      <strong>phone number</strong><br>
+                      <input type="text" disabled class="inp_phone dataValue blocked inp_enable_full_access" value=""/><br><br>
+                      <a href="#" class="button icon solid fa-arrow-circle-right lnk_loadprofile tooltip fullaccess lbl_show_low_access" targetPage="load_full_profile">reveal data<span class="astrix">*</span></a>  
+                      <p class="lbl_show_low_access"><span class="astrix">*</span> This option will load sensitive PII and requires a recent login.</p>
+                    </header>
+                  </div>
+                </section>
+              </div>
+              <div class="col-6 col-12-medium">
+                <section class="box feature">
+                  <div class="inner">
+                    <header>
+                      <h2>Address</h2> 
+                      <strong>street</strong><br>
+                      <input type="text" disabled class="inp_street dataValue blocked inp_enable_full_access" value=""/><br>
+                      <strong>postal code</strong><br>
+                      <input type="text" disabled class="inp_postalcode dataValue blocked inp_enable_full_access" value=""/><br>
+                      <strong>city</strong><br>
+                      <input type="text" disabled class="inp_city dataValue blocked inp_enable_full_access" value=""/><br>
+                      <strong>country</strong><br>
+                      <input type="text" disabled class="inp_country dataValue blocked" value=""/><br><br>
+                    </header>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+<!-- html frame: Page for buying a specific item with options to pay now or later -->
+      <div id="pag_buy_step_1" class="page">
+        <div id="features-wrapper" class="cnt_profile">
+          <div class="container">
+            <div class="row">
+              <div class="col-8 col-12-medium">
+                <section class="box feature">
+                 <div class="inner">
+                   <header>
+                      <h2 class="btn_buynow">Buy now</h2>
+                      <p>That is a great choice, please check your address</p>
+                      <a href="#" class="button icon solid fa-arrow-circle-right lnk_buy_prepay" targetPage="buy_step_1_prepay"><span class="pay_label">pay</span> now</a> 
+                      <a href="#" class="button alt icon solid fa-arrow-circle-right lnk_buy_afterpay fullaccess" targetPage="buy_step_2_afterpay"><span class="pay_label">pay</span> later <span class="astrix">*</span></a>
+                      <p class="ecommerce"><span class="astrix">*</span> This option is only available with a recent login, to prevent fraud.</p>
+                      <p>
+                        <br>
+                        <h2>Address</h2> 
+                        <p>This is the shipping address that we have registered for you.</p>
+                        <strong>street</strong><br>
+                        <input type="text" disabled class="inp_street dataValue blocked" value=""/><br>
+                        <strong>postal code</strong><br>
+                        <input type="text" disabled class="inp_postalcode dataValue blocked" value=""/><br>
+                        <strong>city</strong><br>
+                        <input type="text" disabled class="inp_city dataValue blocked" value=""/><br>
+                        <strong>country</strong><br>
+                        <input type="text" disabled class="inp_country dataValue blocked" value=""/><br>
+                      </p>
+                      <a href="#" class="button alt icon solid fa-arrow-circle-right lnk_loadprofile fullaccess" targetPage="buy_step_1_load_data">reveal <span class="astrix">*</span></a>
+                      <p><span class="astrix">*</span> This option will load sensitive PII and requires a recent login.</p>
+                    </header>
+                  </div>
+                </section>
+              </div>
+              <div class="col-4 col-12-medium">
+               <section class="box feature">
+                  <a href="#" class="image featured"><img style="display:none;" class="lbl_image_buy" src="" alt="" /></a>
+                  <div class="inner">
+                    <header>
+                      <h2 class="lbl_title_buy"></h2>
+                      <p class="lbl_subtitle_buy"></p>
+                    </header>
+                    <p><span class="lbl_price_buy price_batch ecommerce"></span></p>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+<!-- html frame: A page with fake payment system -->
+      <div id="pag_buy_step_2" class="page">
+        <div id="features-wrapper" class="cnt_profile">
+          <div class="container">
+            <div class="row">
+              <div class="col-8 col-12-medium">
+                <section class="box feature">
+                  <div class="inner">
+                    <header>
+                      <h2><span class="pay_label">Pay</span></h2>
+                      <p>This is a fake <span class="pay_label">pay</span> page. As this is a demo application, it will not process actual do a <span class="pay_label">pay</span>.</p>
+                      <p><center><img class="spinner" src="assets/spinner.gif"/></center></p>
+                      <a href="#" class="button alt icon solid fa-arrow-circle-right lnk_finishpayment">Continue</a>
+                    </header>
+                  </div>
+                </section>
+              </div>
+              <div class="col-4 col-12-medium">
+                <section class="box feature">
+                  <a href="#" class="image featured"><img style="display:none;" class="lbl_image_buy" src="" alt="" /></a>
+                  <div class="inner">
+                    <header>
+                      <h2 class="lbl_title_buy"></h2>
+                      <p class="lbl_subtitle_buy"></p>
+                    </header>
+                    <p class="ecommerce"><span class="lbl_price_buy price_batch"></span></p>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+<!-- html frame: Confirmation page -->
+      <div id="pag_buy_step_3" class="page">
+        <div id="features-wrapper" class="cnt_profile">
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-12-medium">
+                <section class="box feature">
+                  <div class="inner">
+                    <header>
+                      <h2>Congratulations</h2>
+                      <p>Your order has been processed and your product is on its way. Please review the details of your product below or return to the <a href="index.html?event=home">home</a> to order even more exciting products. Thank you for shopping at <span class="lbl_app_name">our website</span>, we appreciate your busines.</p><br>
+                      <p>Regards,<br><br><strong><span class="lbl_your_name">Frank</span></strong><br>CEO and Founder</p>
+                    </header>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="features-wrapper" class="cnt_profile">
+          <div class="container">
+            <div class="row">
+              <div class="col-6 col-12-medium">
+                <section class="box feature">
+                  <div class="inner">
+                    <header>
+                      <h2 class="lbl_title_buy"></h2>
+                      <p class="lbl_subtitle_buy"></p>
+                    </header>
+                    <p class="lbl_intro_buy"></p><br>
+                    <p class="lbl_description_buy"></p><br>
+                  </div>
+                </section>
+              </div>
+              <div class="col-6 col-12-medium">
+                <section class="box feature">
+                  <div class="inner">
+                    <header>
+                      <a href="#" class="image featured"><img style="display:none;" class="lbl_image_buy" src="images/3.jpg" alt="" /></a>
+                    </header>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+<!-- html frame: Loading page for in between things -->
+        <div id="pag_loading" class="page">
+          <h2>Hang on ... we are cooking up the page ;)</h2>
+          <p>if it takes over a second, you might want to check for errors</p>
+          <img class="spinner" src="../images/spinner.gif"/>
+        </div>
+<!-- html frame: Standard footer with fake links -->
+        <div id="footer-wrapper">
+          <footer id="footer" class="container">
+            <div class="row">
+              <div class="col-3 col-6-medium col-12-small">
+                <section class="widget links">
+                  <h3>Random link</h3>
+                  <ul class="style2">
+                    <li><a href="#">Etiam feugiat condimentum</a></li>
+                    <li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+                    <li><a href="#">Sed porttitor cras in erat nec</a></li>
+                    <li><a href="#">Felis varius pellentesque potenti</a></li>
+                    <li><a href="#">Nullam scelerisque blandit leo</a></li>
+                  </ul>
+                </section>
+              </div>
+              <div class="col-3 col-6-medium col-12-small">
+                <section class="widget links">
+                  <h3>More Stuff</h3>
+                  <ul class="style2">
+                    <li><a href="#">Etiam feugiat condimentum</a></li>
+                    <li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+                    <li><a href="#">Sed porttitor cras in erat nec</a></li>
+                    <li><a href="#">Felis varius pellentesque potenti</a></li>
+                    <li><a href="#">Nullam scelerisque blandit leo</a></li>
+                  </ul>
+                </section>
+              </div>
+              <div class="col-3 col-6-medium col-12-small">
+                <section class="widget links">
+                  <h3>More Stuff</h3>
+                  <ul class="style2">
+                    <li><a href="#">Etiam feugiat condimentum</a></li>
+                    <li><a href="#">Aliquam imperdiet suscipit odio</a></li>
+                    <li><a href="#">Sed porttitor cras in erat nec</a></li>
+                    <li><a href="#">Felis varius pellentesque potenti</a></li>
+                    <li><a href="#">Nullam scelerisque blandit leo</a></li>
+                  </ul>
+                </section>
+              </div>
+              <div class="col-3 col-6-medium col-12-small">
+                <section class="widget contact last">
+                  <h3>Contact Us</h3>
+                  <ul>
+                    <li><a href="https://twitter.com/okta" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+                    <li><a href="https://www.facebook.com/OktaIdentity/" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+                    <li><a href="https://www.instagram.com/oktainc/" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+                    <li><a href="https://dribbble.com/tags/okta" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
+                    <li><a href="https://www.okta.com" class="icon brands fa-pinterest"><span class="label">Pinterest</span></a></li>
+                  </ul>
+                  <p>
+                    100 First Street, 6th Floor<br />
+                    San Francisco, CA 94105, USA<br />
+                    <strong>USA:</strong> (800) 588-1656<br />
+                    <strong>Europe:</strong> +44 (800) 3688930<br />
+                    <strong>Australia:</strong> +61 283104484</a>
+                  </p>
+                </section>
+              </div>
+            </div>
+          </footer>
+        </div>
 
-					<!-- Logo -->
-						<div id="logo">
-							<h1><a href="index.html">AtkoShop</a></h1>
-							<span>a demo by Okta inc</span>
-						</div>
+      </div>
 
-					<!-- Nav -->
-						<nav id="nav">
-							<ul>
-								<li class="menu_item_home"><a href="index.html?event=home">Home</a></li>
-								<li class="menu_item_profile"><a class="lnk_profile" href="index.html?event=profile">Profile</a></li>
-								<li><a class="lnk_app_logout" href="index.html?event=logout">Logout</a></li>
-							</ul>
-						</nav>
+    <!-- Scripts -->
 
-				</header>
-			</div>
-			<!-- Top Header and menu -->
-			<!-- Banner -->
-			<script>
-				
-			</script>
-				<div id="banner-wrapper">
-					<div id="banner" class="box container">
-						<!-- Start Message content -->
-						<div id="" class="row">
-							<div class="col-7 col-12-medium messageLine">
-								<h4 id="lbl_message"></h4>
-							</div>
-						</div>
-						<!-- End Message content -->
-						<!-- Start Banner -->
-						<div class="row cnt_homeBanner">
-							<div class="col-7 col-12-medium">
-								<h2 id="lbl_title">Welcome to Atko Shop</h2>
-								<p id="lbl_oneliner">A demo brought to you by Okta</p>
-							</div>
-							<div class="col-5 col-12-medium">
-								<ul>
-									<li><a id="btn_header_primary" href="#" target="_self" class="button large icon solid fa-arrow-circle-right">Login</a></li>
-									<li><a id="btn_header_secondary" href="#" class="button alt large icon solid fa-arrow-circle-right">Register</a></li>
-								</ul>
-							</div>
-						</div>
-						<!-- End Banner for unknown user -->
-					</div>
-				</div>
+      <script src="assets/js/jquery.min.js"></script>
+      <script src="assets/js/jquery.dropotron.min.js"></script>
+      <script src="assets/js/browser.min.js"></script>
+      <script src="assets/js/breakpoints.min.js"></script>
+      <script src="assets/js/util.js"></script>
+      <script src="assets/js/main.js"></script>
 
-<!-- tokens -->
-			<!-- Features -->
-				<div id="features-wrapper" class="cnt_tokens" style="display:none;">
-					<div class="container">
-						<div class="row">
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>Access token</h2> 
-												<p>This toke is valid for <span id="lbl_accesstoken_exp"></span>, more information here: <a id="lnk_accesstoken_inspect" target="_blank" href="#">token.dev</a></p>
-											</header>
-											<p>
-												<pre id="lbl_accesstoken" class="token"> 
-												</pre>
-											</p>
-											<header>
-												<h2>Refresh token</h2> 
-												<p>
-													This is your one-time refresh token: <span id="lbl_refreshtoken"></span><br><br>
-													<a href="#" class="button icon solid fa-star btn_renewtokens">Refresh now</a>
-												</p>
-											</header>
-										</div>
-									</section>
-
-							</div>
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>ID token</h2>
-												<p>valid for <span id="lbl_idtoken_exp"></span>, more information here: <a id="lnk_idtoken_inspect" target="_blank" href="#">token.dev</a></p>
-											</header> </p>
-											</header>
-											<p>
-												<pre id="lbl_idtoken" class="token"> 
-												</pre>
-											</p>
-										</div>
-									</section>
-
-							</div>
-						</div>
-					</div>
-				</div>
-<!-- Home page -->
-				<div id="pag_home" class="page">
-				<div id="features-wrapper">
-					<div class="container">
-						<div class="row">
-							<div class="col-4 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured btn_product" productIndex="0"><img style="display:none;" class="lbl_image_0" src="images/none.jpg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2 class="lbl_title_0"></h2>
-												<p class="lbl_subtitle_0"></p>
-											</header>
-											<p class="lbl_intro_0"></p><br>
-											<p><span class="lbl_price_0 price_batch"></span></p>
-											<p><a class="button icon solid fa-arrow-circle-right btn_product btn_buynow" productIndex="0">Buy Now</a></p>
-										</div>
-									</section>
-
-							</div>
-							<div class="col-4 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured btn_product" productIndex="1"><img style="display:none;" class="lbl_image_1" src="images/none.jpg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2 class="lbl_title_1"></h2>
-												<p class="lbl_subtitle_1"></p>
-											</header>
-											<p class="lbl_intro_1"></p><br>
-											<p><span class="lbl_price_1 price_batch"></span></p>
-											<p><a class="button icon solid fa-arrow-circle-right btn_product btn_buynow" productIndex="1">Buy Now</a></p>
-										</div>
-									</section>
-
-							</div>
-							<div class="col-4 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured btn_product" productIndex="2"><img style="display:none;" class="lbl_image_2" src="images/none.jpg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2 class="lbl_title_2"></h2>
-												<p class="lbl_subtitle_2"></p>
-											</header>
-											<p class="lbl_intro_2"></p><br>
-											<p><span class="lbl_price_2 price_batch"></span></p>
-											<p><a class="button icon solid fa-arrow-circle-right btn_product btn_buynow" productIndex="2">Buy Now</a></p>
-										</div>
-									</section>
-
-							</div>
-						</div>
-					</div>
-				</div>
-			<!-- Main -->
-				<div id="main-wrapper">
-					<div class="container">
-						<div class="row gtr-200">
-							<div class="col-4 col-12-medium">
-
-								<!-- Sidebar -->
-									<div id="sidebar">
-										<section class="widget thumbnails">
-											<h3>Newest products</h3>
-											<div class="grid">
-												<div class="row gtr-50">
-													<div class="col-6"><a href="#" class="image fit"><img src="images/4.jpg" alt="" /></a></div>
-													<div class="col-6"><a href="#" class="image fit"><img src="images/5.jpg" alt="" /></a></div>
-													<div class="col-6"><a href="#" class="image fit"><img src="images/6.jpg" alt="" /></a></div>
-													<div class="col-6"><a href="#" class="image fit"><img src="images/7.jpg" alt="" /></a></div>
-												</div>
-											</div>
-										</section>
-									</div>
-
-							</div>
-							<div class="col-8 col-12-medium imp-medium">
-
-								<!-- Content -->
-									<div id="content">
-										<section class="last">
-											<h2>This demo brings CIAM to the next level</h2>
-											<p>With a web and mobile experience, this webshop demo will demonstrate the ultimate experience for retail. As a customer authentication will be equaly easy on web as on mobile and security will be top nodge.</p>
-											<a href="https://www.okta.com/customer-identity/" target="_blank" class="button icon solid fa-arrow-circle-right">Continue Reading</a>  
-											<a href="#" class="button alt icon solid fa-question-circle lnk_okta_logout">End Okta session</a>
-										</section>
-									</div>
-
-							</div>
-						</div>
-					</div>
-				</div>				
-			</div>
-<!-- Profile page -->
-			<div id="pag_profile" class="page">
-			<!-- Features -->
-				<div id="features-wrapper" class="cnt_profile">
-					<div class="container">
-						<div class="row">
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>Account</h2> 
-												<p>You are currently logged in as <span class="lbl_firstname">an unknown user</span>. This is the data we have on record for you. Click to load the full data.<br><br></p>
-												<strong>first name</strong><br>
-												<input type="text" disabled class="inp_firstname dataValue blocked" value=""/><br>
-												<strong>last name</strong><br>
-												<input type="text" disabled class="inp_lastname dataValue blocked" value=""/><br>
-												<strong>phone number</strong><br>
-												<input type="text" disabled class="inp_phone dataValue blocked" value=""/><br><br>
-												<a href="#" class="button icon solid fa-arrow-circle-right lnk_loadprofile tooltip fullaccess" targetPage="load_full_profile">load data <span class="astrix">*</span></a>  
-												<p><span class="astrix">*</span> This option will load sensitive PII and requires a recent login.</p>
-											</header>
-										</div>
-										
-									</section>
-
-							</div>
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>Address</h2> 
-												<strong>street</strong><br>
-												<input type="text" disabled class="inp_street dataValue blocked" value=""/><br>
-												<strong>postal code</strong><br>
-												<input type="text" disabled class="inp_postalcode dataValue blocked" value=""/><br>
-												<strong>city</strong><br>
-												<input type="text" disabled class="inp_city dataValue blocked" value=""/><br>
-												<strong>country</strong><br>
-												<input type="text" disabled class="inp_country dataValue blocked" value=""/><br>
-											</header>
-										</div>
-									</section>
-
-							</div>
-						</div>
-
-					</div>
-				</div>
-
-				</div>
-<!-- Buy page -->
-			<div id="pag_buy_step_1" class="page">
-			<!-- Features -->
-				<div id="features-wrapper" class="cnt_profile">
-					<div class="container">
-						<div class="row">
-							<div class="col-8 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>Buy now</h2>
-												<p>That is a great choice, please check your address and choose your payment preference</p>
-												<a href="#" class="button icon solid fa-arrow-circle-right lnk_buy_prepay" targetPage="buy_step_1_prepay">pay now</a> 
-												<a href="#" class="button alt icon solid fa-arrow-circle-right lnk_buy_afterpay fullaccess" targetPage="buy_step_2_afterpay">pay later <span class="astrix">*</span></a>
-												<p><span class="astrix">*</span> This option is only available with a recent login, to prevent fraud.</p>
-
-												<p>
-													<br>
-													<h2>Address</h2> 
-													<p>This is the shipping address that we have registered for you.</p>
-													<strong>street</strong><br>
-													<input type="text" disabled class="inp_street dataValue blocked" value=""/><br>
-													<strong>postal code</strong><br>
-													<input type="text" disabled class="inp_postalcode dataValue blocked" value=""/><br>
-													<strong>city</strong><br>
-													<input type="text" disabled class="inp_city dataValue blocked" value=""/><br>
-													<strong>country</strong><br>
-													<input type="text" disabled class="inp_country dataValue blocked" value=""/><br>
-												</p>
-												<a href="#" class="button alt icon solid fa-arrow-circle-right lnk_loadprofile fullaccess" targetPage="buy_step_1_load_data">reveal <span class="astrix">*</span></a>
-												<p><span class="astrix">*</span> This option will load sensitive PII and requires a recent login.</p>
-											</header>
-										</div>
-									</section>
-
-							</div>
-							<div class="col-4 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured"><img style="display:none;" class="lbl_image_buy" src="images/3.jpg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2 class="lbl_title_buy"></h2>
-												<p class="lbl_subtitle_buy"></p>
-											</header>
-											<p><span class="lbl_price_buy price_batch"></span></p>
-										</div>
-									</section>
-							</div>
-						</div>
-
-					</div>
-				</div>
-
-				</div>
-<!-- Payment page -->
-			<div id="pag_buy_step_2" class="page">
-			<!-- Features -->
-				<div id="features-wrapper" class="cnt_profile">
-					<div class="container">
-						<div class="row">
-							<div class="col-8 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>Payment</h2>
-												<p>This is a fake payment page. As this is a demo application, it will not process actual payments. In a actual webshop, this is where a customer would provide bank or creditcard details and the payment will be verified.</p>
-												<p><center><img class="spinner" src="assets/spinner.gif"/></center></p>
-												<a href="#" class="button alt icon solid fa-arrow-circle-right lnk_finishpayment">Continue</a>
-											</header>
-										</div>
-									</section>
-
-							</div>
-							<div class="col-4 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured"><img style="display:none;" class="lbl_image_buy" src="images/3.jpg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2 class="lbl_title_buy"></h2>
-												<p class="lbl_subtitle_buy"></p>
-											</header>
-											<p><span class="lbl_price_buy price_batch"></span></p>
-										</div>
-									</section>
-							</div>
-						</div>
-
-					</div>
-				</div>
-
-				</div>
-<!-- Confirmation page -->
-			<div id="pag_buy_step_3" class="page">
-			<!-- Features -->
-				<div id="features-wrapper" class="cnt_profile">
-					<div class="container">
-						<div class="row">
-							<div class="col-12 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>Congratulations</h2>
-												<p>Your order has been processed and your product is on its way. Please review the details of your product below or return to the <a href="index.html?event=home">home</a> to order even more exciting products. Thank you for shopping at Atkoshop, we appreciate your busines.</p><br>
-												<p>Regards,<br><br><strong>Frank</strong><br>CEO and Founder</p>
-											</header>
-										</div>
-									</section>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div id="features-wrapper" class="cnt_profile">
-					<div class="container">
-						<div class="row">
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2 class="lbl_title_buy"></h2>
-												<p class="lbl_subtitle_buy"></p>
-											</header>
-											<p class="lbl_intro_buy"></p><br>
-											<p class="lbl_description_buy"></p><br>
-										</div>
-									</section>
-
-							</div>
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<a href="#" class="image featured"><img style="display:none;" class="lbl_image_buy" src="images/3.jpg" alt="" /></a>
-											</header>
-										</div>
-									</section>
-
-							</div>
-						</div>
-
-					</div>
-				</div>
-
-				</div>
-<!-- Error page -->
-				<div id="pag_error" class="page">
-					Sorry! Something went wromng, please contact someone ;)
-				</div>
-<!-- Profile page -->
-				<div id="pag_loading" class="page">
-					<img class="spinner" src="../images/spinner.gif"/>
-				</div>
-			<!-- Features -->
-				<div id="features-wrapper" class="cnt_tokens" style="display:none;">
-					<div class="container">
-						<div class="row">
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>Access token</h2> 
-												<p>This toke is valid for <span id="lbl_accesstoken_exp"></span>, more information here: <a id="lnk_accesstoken_inspect" target="_blank" href="#">token.dev</a></p>
-											</header>
-											<p>
-												<pre id="lbl_accesstoken" class="token"> 
-												</pre>
-											</p>
-											<header>
-												<h2>Refresh token</h2> 
-												<p>
-													This is your one-time refresh token: <span id="lbl_refreshtoken"></span><br><br>
-													<a href="#" class="button icon solid fa-star btn_renewtokens">Refresh now</a>
-												</p>
-											</header>
-
-										</div>
-									</section>
-
-							</div>
-							<div class="col-6 col-12-medium">
-
-								<!-- Box -->
-									<section class="box feature">
-										<div class="inner">
-											<header>
-												<h2>ID token</h2>
-												<p>valid for <span id="lbl_idtoken_exp"></span>, more information here: <a id="lnk_idtoken_inspect" target="_blank" href="#">token.dev</a></p>
-											</header> </p>
-											</header>
-											<p>
-												<pre id="lbl_idtoken" class="token"> 
-												</pre>
-											</p>
-										</div>
-									</section>
-
-							</div>
-						</div>
-					</div>
-				</div>
-
-
-
-			<!-- Footer -->
-				<div id="footer-wrapper">
-					<footer id="footer" class="container">
-						<div class="row">
-							<div class="col-3 col-6-medium col-12-small">
-
-								<!-- Links -->
-									<section class="widget links">
-										<h3>Random link</h3>
-										<ul class="style2">
-											<li><a href="#">Etiam feugiat condimentum</a></li>
-											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
-											<li><a href="#">Sed porttitor cras in erat nec</a></li>
-											<li><a href="#">Felis varius pellentesque potenti</a></li>
-											<li><a href="#">Nullam scelerisque blandit leo</a></li>
-										</ul>
-									</section>
-
-							</div>
-							<div class="col-3 col-6-medium col-12-small">
-
-								<!-- Links -->
-									<section class="widget links">
-										<h3>More Stuff</h3>
-										<ul class="style2">
-											<li><a href="#">Etiam feugiat condimentum</a></li>
-											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
-											<li><a href="#">Sed porttitor cras in erat nec</a></li>
-											<li><a href="#">Felis varius pellentesque potenti</a></li>
-											<li><a href="#">Nullam scelerisque blandit leo</a></li>
-										</ul>
-									</section>
-
-							</div>
-							<div class="col-3 col-6-medium col-12-small">
-
-								<!-- Links -->
-									<section class="widget links">
-										<h3>And also ...</h3>
-										<ul class="style2">
-											<li><a href="#">Etiam feugiat condimentum</a></li>
-											<li><a href="#">Aliquam imperdiet suscipit odio</a></li>
-											<li><a href="#">Sed porttitor cras in erat nec</a></li>
-											<li><a href="#">Felis varius pellentesque potenti</a></li>
-											<li><a href="#">Nullam scelerisque blandit leo</a></li>
-										</ul>
-									</section>
-
-							</div>
-							<div class="col-3 col-6-medium col-12-small">
-
-								<!-- Contact -->
-									<section class="widget contact last">
-										<h3>Contact Us</h3>
-										<ul>
-											<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-											<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-											<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-											<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
-											<li><a href="#" class="icon brands fa-pinterest"><span class="label">Pinterest</span></a></li>
-										</ul>
-										<p><a target="_blank" href="http://stackoverflow.com">555 Fake Address<br />
-										Someville, XX 00000<br />
-										(555) 999-0000</a></p>
-									</section>
-
-							</div>
-						</div>
-					</footer>
-				</div>
-
-			</div>
-
-		<!-- Scripts -->
-
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.dropotron.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
+  </body>
 </html>
-    <script>
-
-
-    </script>
-<script>
-	// Execute when document is ready
-	$(document).ready(function(){
-		setProducts(productArray)
-		var event = getParameterByName('event');
-		if (event) {
-			localStorage.setItem('event', event);
-		} else {
-			event = localStorage.getItem('event');
-		}
-		switch(event) {
-		  case 'login':
-		  	var login_code = getParameterByName('code');
-		  	if (login_code) {
-				var login_scopes 	= 'openid profile access_low offline_access'
-				var login_redirecturi = localStorage.getItem('portalcallbackurl')
-		        getTokensWithCode(login_code, login_scopes, login_redirecturi, 'home');
-		  	} else {
-		  		startApp('home');	
-		  	}
-		  	break;
-		  case 'logout':
-			writeLog('-> logout the user from app');
-			trashToken('access_token');
-			trashToken('id_token');
-			window.location = 'index.html?event=home'
-			break;
-		  case 'load_full_profile':
-		  	authorisationCode 	= getParameterByName('code');
-		  	if (authorisationCode) {
-				var redirectUri 		= localStorage.getItem('portalrenewurl')
-				var requestedScopes 	= 'openid profile access_full'
-		        getTokensWithCode(authorisationCode, requestedScopes, redirectUri, 'profile');
-		  	} else {
-		  		startApp('profile');	
-		  	}
-			
-		    break;
-		  case 'buy_step_2_afterpay':
-		  	authorisationCode 	= getParameterByName('code');
-		  	if (authorisationCode) {
-				var redirectUri 		= localStorage.getItem('portalrenewurl')
-				var requestedScopes 	= 'openid profile access_full'
-		        getTokensWithCode(authorisationCode, requestedScopes, redirectUri, 'confirmation');
-		  	} else {
-		  		alert('Something went wrong, maybe no auth code?');
-		  		//startApp('profile');	
-		  	}
-			
-		    break;
-		  case 'buy_step_1_load_data':
-		  	authorisationCode 	= getParameterByName('code');
-		  	if (authorisationCode) {
-				var redirectUri 		= localStorage.getItem('portalrenewurl')
-				var requestedScopes 	= 'openid profile access_full'
-		        getTokensWithCode(authorisationCode, requestedScopes, redirectUri, 'buy_step_1_load_data');
-		  	} else {
-		  		startApp('buy_step_1');	
-		  	}
-			
-		    break;
-		  case 'buy':
-		  	startApp('buy_step_1');
-		    break;
-		  case 'profile':
-		  	startApp('profile');
-		    break;
-		  case 'pay':
-		  	startApp('buy_step_2');
-		    break;
-		  case 'confirmation':
-		  	startApp('buy_step_3');
-		    break;
-		  default:
-		  	localStorage.removeItem('lastProductIndex')
-		  	startApp('home');
-		}		
-
-	})
-
-	// Execute when login button is clicked
-	$(document).on('click', '.lnk_login', function(){
-		var codeVerifier = generateCodeVerifier();
-		var codeChallenge = generateCodeChallenge(codeVerifier);
-		localStorage.setItem('codeverifier', codeVerifier);
-		var login_scopes 	= 'openid profile access_low offline_access'
-		localStorage.setItem('event', 'login')
-		var login_redirecturi = localStorage.getItem('portalcallbackurl')
-		getAuthorisationCode(codeChallenge, login_scopes, login_redirecturi);
-	})
-
-	$(".lnk_okta_logout").click(function() {
-		alert('This will end your Okta session, to simulate the app not being used for a while. It does not logout the user from the app or invalidate the refresh token.');
-		var platform = localStorage.getItem('platform')
-		if (platform == 'mobile') {
-			var sLogoutOkta = 'https://auth.atkoinc.nl/login/signout?fromURI=https://www.atkoinc.nl/app/?message=okta session ended'
-		} else {
-			var sLogoutOkta = 'https://auth.atkoinc.nl/login/signout?fromURI='+ localStorage.getItem('portalurl');
-		}
-		window.location = sLogoutOkta;
-	})
-
-	// Execute when shop button is clicked
-	$(document).on('click', '.lnk_shop', function(){
-		alert('This is not really a webshop (yet)');
-	})
-
-	// Execute when shop button is clicked
-	$(document).on('click', '.lnk_loadprofile', function(){
-		var codeVerifier = generateCodeVerifier();
-		var codeChallenge = generateCodeChallenge(codeVerifier);
-		var targetPage = $(this).attr('targetPage');
-		localStorage.setItem('codeverifier', codeVerifier);
-		var login_scopes 	= 'openid profile access_full'
-		localStorage.setItem('event', targetPage)
-		var login_redirecturi = localStorage.getItem('portalrenewurl')
-		getAuthorisationCode(codeChallenge, login_scopes, login_redirecturi);
-	})
-
-	$(".btn_product").click(function(){
-		var productIndex = $(this).attr('productIndex');
-		localStorage.setItem('lastProductIndex', productIndex);
-		window.location = 'index.html?event=buy'
-	})
-
-	// Execute when register button is clicked
-	$(document).on('click', '.lnk_register', function(){
-		alert('This is included in the demo (yet) ... stay tuned!');
-	})	
-
-	// Execute when tokens is clicked
-	$(document).on('click', '.lnk_tokens', function(){
-		writeLog('-> display tokens div');
-		$(".cnt_tokens").slideToggle();
-
-		if ($(".lnk_tokens").hasClass('fa-arrow-circle-up')===true) {
-			$(".lnk_tokens").removeClass('fa-arrow-circle-up');
-			$(".lnk_tokens").addClass('fa-arrow-circle-down');
-		} else {
-			$(".lnk_tokens").removeClass('fa-arrow-circle-down');
-			$(".lnk_tokens").addClass('fa-arrow-circle-up');
-
-		}
-	})
-
-	$(".lnk_finishpayment").click(function(){
-		window.location = 'index.html?event=confirmation'	
-	})
-
-	$(".lnk_buy_prepay").click(function(){
-		window.location = 'index.html?event=pay'	
-	})
-
-	$(".lnk_buy_afterpay").click(function(){
-		var codeVerifier = generateCodeVerifier();
-		var codeChallenge = generateCodeChallenge(codeVerifier);
-		var targetPage = $(this).attr('targetPage');
-		localStorage.setItem('codeverifier', codeVerifier);
-		var login_scopes 	= 'openid profile access_full'
-		localStorage.setItem('event', targetPage)
-		var login_redirecturi = localStorage.getItem('portalrenewurl')
-		getAuthorisationCode(codeChallenge, login_scopes, login_redirecturi);
-	})
-
-	$(".btn_renewtokens").click(function() {
-		var refresh_token = $("#lbl_refreshtoken").text();
-		renewTokens(refresh_token);
-	})
-
-	document.addEventListener("deviceready", function () {
-	    universalLinks.subscribe('ul_callBack', function (eventData) {
-	        var authorisationCode 	= getParameterFromString(eventData.url, 'code');
-	        var landingPage			= 'home'
-			if (authorisationCode) {
-				var requestedScopes 	= 'openid profile access_low offline_access'
-				var redirectUri 		= localStorage.getItem('portalcallbackurl') 
-		        getTokensWithCode(authorisationCode, requestedScopes, redirectUri, landingPage);		  			
-			} else {
-				alert('starting app for page:'+ landingPage)
-				startApp(landingPage);
-			}
-		});
-	});
-
-	// catch the event when a token is requested for full access
-	document.addEventListener("deviceready", function () {
-	    universalLinks.subscribe('ul_fullaccess', function (eventData) {
-			var redirectUri 		= localStorage.getItem('portalrenewurl')
-			var requestedScopes 	= 'openid profile access_full'
-			var authorisationCode 	= getParameterFromString(eventData.url, 'code');
-			if (localStorage.getItem('event') == 'buy_step_1_load_data') {
-				landingPage			= 'buy'
-			} else {
-				landingPage			= 'profile'
-			}
-	        getTokensWithCode(authorisationCode, requestedScopes, redirectUri, landingPage);
-	    });
-	});
-
-
-    </script>

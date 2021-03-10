@@ -52,8 +52,10 @@ label {
 
 input.blocked {
 	border-width: 0;
-	cursor: default;
+	border-color: #c5c5c5;
+	border-bottom-width: 1;
 	background-color: #fff;
+	width:100%;
 }
 
 input.blocked[disabled] {
@@ -1996,10 +1998,11 @@ input, select, textarea {
 /* Logo */
 
 	#logo {
-		display: inline-block;
+		display: none;
 	}
 
 		#logo h1 {
+
 			background: #ff4486;
 			color: #fff;
 			border-radius: 6px;
@@ -2024,6 +2027,7 @@ input, select, textarea {
 /* Nav */
 
 	#nav {
+		display:none;
 		position: absolute;
 		right: 0;
 		top: 0;

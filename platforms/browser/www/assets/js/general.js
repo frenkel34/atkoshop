@@ -1,16 +1,13 @@
 // ------------------------------------------------------------------------------------------
 // generic functions
 // ------------------------------------------------------------------------------------------
-
 function writeLog(message) {
-	
-	if (localStorage.getItem('logging') === true) {
+	if (settings.app.logging === true) {
 		console.log(message);
 	} 
 }
 
-function getParameterByName( name ) 
-{
+function getParameterByName( name ) {
   name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
   var regexS = "[\\?&]"+name+"=([^&#]*)";
   var regex = new RegExp( regexS );
@@ -21,8 +18,7 @@ function getParameterByName( name )
     return decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-function getParameterFromString( urlString, name ) 
-{
+function getParameterFromString( urlString, name ) {
   name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
   var regexS = "[\\?&]"+name+"=([^&#]*)";
   var regex = new RegExp( regexS );
@@ -47,16 +43,13 @@ function parseJwt(token) {
 }
 
 function prettifyJWT(jwtToken) {
-	// decode the token
 	var prettyJwt = parseJwt(jwtToken);
-	// get the token indented and on multiple lines
 	prettyJwt = JSON.stringify(prettyJwt, null, 2); 
 	return prettyJwt
 }
 
 function processMessage(message) {
     if (message) {
-    // Display message
 		writeLog('-> a message was found: '+ message);
 		$("#lbl_message").text(message);
 	} else {
@@ -82,20 +75,73 @@ function getTokenValidity(jwtToken) {
 }
 
 // ------------------------------------------------------------------------------------------
-// session management
+// authentication
 // ------------------------------------------------------------------------------------------
+//
+// Some calls have a origin header, this is done in order to change the origin on mobile. 
+// As modern browsers ignore this instruction due to security issues, it is always added	
 
 	function getAuthorisationCode(codeChallenge, requestedScopes, redirectUri) {
-//        alert('getting a code!');
-        var codeUrl = localStorage.getItem('oktaurl') + '/oauth2/'+ localStorage.getItem('authorizationserver') +'/v1/authorize?client_id='+ localStorage.getItem('clientid')  +'&response_type=code&scope='+ requestedScopes +'&redirect_uri='+ redirectUri +'&state=x&nonce=y&code_challenge_method=S256&code_challenge='+ codeChallenge
-		writeLog('-> getting an authorisation here: '+ codeUrl);
+   		authorizationServer = window.settings.okta.oktaurl + '/oauth2/'+ window.settings.okta.authorizationserver +'/v1';
+        var codeUrl = authorizationServer + '/authorize?client_id='+ window.settings.okta.clientid  +'&response_type=code&scope='+ requestedScopes +'&redirect_uri='+ redirectUri +'&state=x&nonce=y&code_challenge_method=S256&code_challenge='+ codeChallenge
+		writeLog('Getting an authorisation code here: '+ codeUrl);
 		window.open(codeUrl, '_self', 'location=yes'); 
+	}
+
+	function getTokensWithCode(authorisationCode, requestedScopes, redirectUri, landingPage) {
+		authorizationServer = window.settings.okta.oktaurl + '/oauth2/'+ window.settings.okta.authorizationserver +'/v1';
+		var token_url = authorizationServer + '/token'
+		writeLog('Getting with code '+ authorisationCode +' tokens at '+ token_url);
+		if (authorisationCode) {
+			var settings = {
+			  'url': token_url,
+			  'method': 'POST',
+			  'timeout': 0,
+			  'headers': {
+			    'Accept': 'application/json',
+			    'Content-Type': 'application/x-www-form-urlencoded',
+	            'Access-Control-Allow-Origin': '*',
+	            'origin': 'https://www.atkoinc.nl/callback'
+			  },
+			  'data': {
+			    'client_id': window.settings.okta.clientid,
+			    'scope': window.settings.okta.basic_scopes,
+			    'grant_type': 'authorization_code',
+			    'redirect_uri': redirectUri,
+			    'code_verifier': localStorage.getItem('codeverifier'),
+			    'code': authorisationCode
+			  }
+			};
+			if (window.settings.urls.platform == 'mobile') {
+			    cordova.plugin.http.sendRequest(token_url, settings, function(response) {
+			      var responseData = JSON.parse(response.data)
+			      var access_token = responseData.access_token
+			      var id_token = responseData.id_token
+			      var refresh_token = responseData.refresh_token
+				  processTokens(access_token, id_token, refresh_token, redirectUri, landingPage);
+
+			    }, function(response) {
+			    	alert(JSON.stringify(response));
+					alert('Okta returned an error while exchanging the code for a token on mobile, please try again');
+			    });
+
+			} else {
+				$.ajax(settings)
+				.done(function (response) {
+					processTokens(response.access_token, response.id_token, response.refresh_token, redirectUri, landingPage);
+				})
+				.fail(function (response) {
+					alert(JSON.stringify(response));
+					alert('Okta returned an error while exchanging the code for a token on desktop, please try again');
+				});				
+			}
+		}
 	}
 
 	function renewTokens(refresh_token) {
 		writeLog('-> renewing tokens with the refresh token ('+ refresh_token +')')
-	    var token_url = localStorage.getItem('oktaurl') + '/oauth2/default/v1/token';
-		var redirectUri = localStorage.getItem('portalcallbackurl')
+	    var token_url = window.settings.okta.oktaurl + '/oauth2/default/v1/token';
+		var redirectUri = window.settings.urls.callbackurl
 		if (refresh_token) {
 			var settings = {
 			  'url': token_url,
@@ -108,18 +154,18 @@ function getTokenValidity(jwtToken) {
 	            'origin': 'https://www.atkoinc.nl/callback'
 			  },
 			  'data': {
-			    'client_id': localStorage.getItem('clientid'),
+			    'client_id': window.settings.okta.clientid,
 			    'grant_type': 'refresh_token',
 			    'redirect_uri': redirectUri,
 			    'refresh_token': refresh_token
 			  }
 			};
-			if (localStorage.getItem('platform') == 'mobile') {
+			if (window.settings.urls.platform == 'mobile') {
 			    cordova.plugin.http.sendRequest(token_url, settings, function(response) {
 			      var responseData = JSON.parse(response.data)
 			      var access_token = responseData.access_token
 			      var id_token = responseData.id_token
-			      var refresh_token = responseData.refresh_token
+			      var refresh_token = responflocalseData.refresh_token
 				  processTokens(access_token, id_token, refresh_token, redirectUri);
 
 			    }, function(response) {
@@ -137,97 +183,43 @@ function getTokenValidity(jwtToken) {
 			}
 
 		} else {
-			alert('There os no refresh token to renew your tokens');
+			alert('There is no refresh token to renew your tokens');
 		}
 
 	}
 
-	function getTokensWithCode(authorisationCode, requestedScopes, redirectUri, landingPage) {
-//		alert('getting the tokens on '+ localStorage.getItem('platform') +'!');
-		var token_url = localStorage.getItem('oktaurl') + '/oauth2/default/v1/token'
-		if (authorisationCode) {
-			var settings = {
-			  'url': token_url,
-			  'method': 'POST',
-			  'timeout': 0,
-			  'headers': {
-			    'Accept': 'application/json',
-			    'Content-Type': 'application/x-www-form-urlencoded',
-	            'Access-Control-Allow-Origin': '*',
-	            'origin': 'https://www.atkoinc.nl/callback'
-			  },
-			  'data': {
-			    'client_id': localStorage.getItem('clientid'),
-			    'scope': localStorage.getItem('scopes'),
-			    'grant_type': 'authorization_code',
-			    'redirect_uri': redirectUri,
-			    'code_verifier': localStorage.getItem('codeverifier'),
-			    'code': authorisationCode
-			  }
-			};
-			if (localStorage.getItem('platform') == 'mobile') {
-				// if the user is on mobile execute this:
-			    cordova.plugin.http.sendRequest(token_url, settings, function(response) {
-			      var responseData = JSON.parse(response.data)
-			      var access_token = responseData.access_token
-			      var id_token = responseData.id_token
-			      var refresh_token = responseData.refresh_token
-				  processTokens(access_token, id_token, refresh_token, redirectUri, landingPage);
-
-			    }, function(response) {
-			    	alert(JSON.stringify(response));
-					alert('Okta returned an error while exchanging the code for a token on mobile, please try again');
-			    });
-
-			} else {
-				// if the user is in the browser, do this:
-				$.ajax(settings)
-				.done(function (response) {
-					processTokens(response.access_token, response.id_token, response.refresh_token, redirectUri, landingPage);
-				})
-				.fail(function (response) {
-					alert(JSON.stringify(response));
-					alert('Okta returned an error while exchanging the code for a token on desktop, please try again');
-				});				
-			}
-		
-
-}
-	}
-
 	function processTokens(access_token, id_token, refresh_token, redirectUri, landingPage) {
-//		alert('Processing tokens')
+		// process access token
+		if (access_token) {
+			localStorage.setItem('access_token', access_token);
+			writeLog(access_token)
+		} else {
+			alert('some error occurred on the access token');
+		}
+		// process id token
+		if (id_token) {
+			writeLog('-> code returned an ID token');
+			writeLog(id_token)
+			localStorage.setItem('id_token', id_token);
+			window.location = 'index.html?event='+landingPage;
+		} else {
+			alert('some error occurred on the id token');
+			window.location = window.settings.urls.url + '?page=error'
+		}
+		// process refresh token
 		if (refresh_token) {
 			writeLog('-> code returned a refresh token');
 			writeLog(refresh_token)
 			localStorage.setItem('refresh_token', refresh_token);
 		} 		
-		if (access_token) {
-			writeLog('-> code returned an access token');
-			writeLog(access_token)
-			localStorage.setItem('access_token', access_token);
-		} else {
-			alert('some error occurred on the access token');
-		}
-		if (id_token) {
-			writeLog('-> code returned an ID token');
-			writeLog(id_token)
-			localStorage.setItem('id_token', id_token);
-//			alert('redirecting to: index.html?event='+landingPage);
-			//checkAuthentionStatus()
-			window.location = 'index.html?event='+landingPage;
-		} else {
-			alert('some error occurred on the id token');
-			window.location = localStorage.getItem('portalurl') + '?page=error'
-		}
+
+
 	}
 
-
-
 	function validateToken(tokenType) {
+	// WARNING: Note that this is not full validation of the token and it is an insecure way to do this!	
 		var raw_idToken = localStorage.getItem(tokenType);
 		var expValidity = false
-
 		if (raw_idToken) {
 			var jwt_idToken = parseJwt(raw_idToken)
 			// validate exp
@@ -245,10 +237,6 @@ function getTokenValidity(jwtToken) {
 		return expValidity;
 	}
 
-	function trashToken(tokenType) {
-		localStorage.removeItem(tokenType);
-	}
-
 	function getAuthentionStatus() {
 		var jwt_validity = validateToken('id_token');
 
@@ -260,11 +248,10 @@ function getTokenValidity(jwtToken) {
 		return jwt_validity
 	}
 
-function startApp(page) {
+	function startApp(page) {
     writeLog('-> starting the app for page: '+ page);
     // hide all pages and show spinner page while loading
 	$(".menu_item_"+ page).addClass('current');
-
 	$(".page").hide();
 	$("#pag_loading").show();
     	// Setup the app for the user, all is fine!
@@ -278,6 +265,7 @@ function startApp(page) {
 			var prettyIdToken 		= prettifyJWT(id_token);
 			var accessTokenExp 		= getTokenValidity(access_token);
 			var idTokenExp 			= getTokenValidity(id_token);
+
 			$("#lbl_accesstoken").html(prettyAccessToken)
 			$("#lbl_idtoken").html(prettyIdToken)
 			$("#lbl_accesstoken_exp").html(accessTokenExp)
@@ -285,56 +273,43 @@ function startApp(page) {
 			$("#lnk_accesstoken_inspect").attr('href', 'https://token.dev#'+access_token);
 			$("#lnk_idtoken_inspect").attr('href', 'https://token.dev#'+id_token);
 			$("#lbl_refreshtoken").text(refresh_token);
+
 		// Set values on profile page
 			parsed_id_token = parseJwt(id_token);
 			var red_state = parsed_id_token.red_state
-			if (red_state) {
-				var firstname	= parsed_id_token.red_firstname
-				var lastname	= parsed_id_token.red_lastname
-				var street		= parsed_id_token.red_street
-				var postalcode	= parsed_id_token.red_postalcode
-				var city		= parsed_id_token.red_city
-				var country 	= parsed_id_token.red_country				
-				var phone 		= parsed_id_token.red_phone
-				$(".lnk_loadprofile").show();
-			} else {
-				var firstname	= parsed_id_token.firstname
-				var lastname	= parsed_id_token.lastname
-				var street		= parsed_id_token.street
-				var postalcode	= parsed_id_token.postalcode
-				var city		= parsed_id_token.city
-				var country 	= parsed_id_token.country				
-				var phone 		= parsed_id_token.phone
-				$(".lnk_loadprofile").hide();
-			}
-			if (firstname) { 
-				$(".inp_firstname").val(firstname)
-			}
-			if (lastname) {
-				$(".inp_lastname").val(lastname)
+			var access_token_okta = localStorage.getItem('okta_access_token');
+			// take the data from the token
+				if (red_state) {
+					var firstname	= parsed_id_token.red_firstname
+					var lastname	= parsed_id_token.red_lastname
+					var street		= parsed_id_token.red_street
+					var postalcode	= parsed_id_token.red_postalcode
+					var city		= parsed_id_token.red_city
+					var country 	= parsed_id_token.red_country				
+					var phone 		= parsed_id_token.red_phone
+					$(".lbl_show_low_access").show();
+					$(".lbl_show_full_access").hide();
+				} else {
+					var firstname	= parsed_id_token.firstname
+					var lastname	= parsed_id_token.lastname
+					var street		= parsed_id_token.street
+					var postalcode	= parsed_id_token.postalcode
+					var city		= parsed_id_token.city
+					var country 	= parsed_id_token.country				
+					var phone 		= parsed_id_token.phone
+					$(".lbl_show_low_access").hide();
+					$(".lbl_show_full_access").show();
+				}
+			// set the data in the app
+			$(".inp_firstname").val(firstname)
+			$(".inp_lastname").val(lastname)
+			$(".inp_street").val(street)
+			$(".inp_postalcode").val(postalcode)
+			$(".inp_city").val(city)
+			$(".inp_country").val(country)
+			$(".inp_phone").val(phone)				
 
-			}
-			if (street) {
-				$(".inp_street").val(street)
-
-			}
-			if (postalcode) {
-				$(".inp_postalcode").val(postalcode)
-
-			}
-			if (city) {
-				$(".inp_city").val(city)
-
-			}
-			if (country) {
-				$(".inp_country").val(country)
-
-			}
-			if (phone) {
-				$(".inp_phone").val(phone)
-
-			}
-			//other stuff
+			// Set some other stuff
 			$(".lnk_app_logout").css('display','inline'); 
 			$(".lnk_profile").css('display','inline'); 
 			$("#btn_login_menu").hide();
@@ -348,21 +323,24 @@ function startApp(page) {
 
 			writeLog('-> there is no valid id_token present in localStorage');	
 		}
+
+		// Change thew top buttons based on the page that is being displayed
 		if (page === 'profile') {
 			$("#lbl_title").text('Who is '+ firstname +'?');
 			$(".lbl_firstname").text(firstname);
 			$("#lbl_oneliner").text('All we know about you');
-			$("#btn_header_primary").text('Shop');
-			$("#btn_header_primary").addClass('lnk_shop');
-			$("#btn_header_secondary").text('Tokens');
+			$("#btn_header_primary").text('Home');
+			$("#btn_header_primary").attr('targetpage','home')
+			$("#btn_header_primary").addClass('lnk_home');
+			$("#btn_header_secondary").text('Debug');
 			$("#btn_header_secondary").addClass('lnk_tokens');
 		} else {
 			if (validateToken('id_token') === true) {
 				$("#lbl_title").text('Welcome '+ firstname);
 				$("#lbl_oneliner").text('Always come back for more');
-				$("#btn_header_primary").text('Shop');
-				$("#btn_header_primary").addClass('lnk_shop');
-				$("#btn_header_secondary").text('Tokens');
+				$("#btn_header_primary").text('Home');
+				$("#btn_header_primary").addClass('lnk_home');
+				$("#btn_header_secondary").text('Debug');
 				$("#btn_header_secondary").addClass('lnk_tokens');
 			} else {
 				$("#lbl_title").text('Happy shopping');
@@ -375,73 +353,35 @@ function startApp(page) {
 
 			}
 		}
-	// show the page that the user needs to see
-	$("#pag_loading").hide();
-	$("#banner-wrapper").slideDown();
-	$("#pag_"+page).slideDown();
-}
-
-
-
-function setProducts(productArray) {
-	var lastProductIndex = localStorage.getItem('lastProductIndex')
-	for (i = 0; i < 3; i++) {
-		if (productArray[i].image) {
-			$(".lbl_image_"+i).attr('src',productArray[i].image);
-			$(".lbl_image_"+i).show();
-		}
-		$(".lbl_title_"+i).text(productArray[i].title);
-		$(".lbl_subtitle_"+i).text(productArray[i].subtitle);
-		$(".lbl_intro_"+i).text(productArray[i].intro);
-		$(".lbl_price_"+i).text(productArray[i].price);
+		// show the page that the user needs to see
+		$("#pag_loading").hide();
+		$("#banner-wrapper").slideDown();
+		$("#pag_"+page).slideDown();
 	}
-	if (lastProductIndex) {
-		lastProductIndex = parseInt(lastProductIndex);
-		if (productArray[lastProductIndex].image) {
-			$(".lbl_image_buy").attr('src',productArray[lastProductIndex].image);
-			$(".lbl_image_buy").show();
-		}
-		$(".lbl_description_buy").text(productArray[lastProductIndex].description);
-		$(".lbl_title_buy").text(productArray[lastProductIndex].title);
-		$(".lbl_subtitle_buy").text(productArray[lastProductIndex].subtitle);
-		$(".lbl_price_buy").text(productArray[lastProductIndex].price);
-	}
-}
 
-	function test302() {
-		if (authorisationCode) {
-			var settings = {
-			  'url': 'https://yougotsaas.oktapreview.com/oauth2/v1/authorize?client_id=0oa196wwmwSuKAjQb0x7&response_type=code&redirect_uri=http://localhost:3000/login/callback&scope=profile openid email&state=1234&idp=0oausfsv1B7S7YOnS0x6&code_challenge_method=S256&code_challenge=dTf6dOHabOKbILDaivC375ZQEPv2fgQBN-KOekXDziM',
-			  'method': 'POST',
-			  'timeout': 0,
-			  'headers': {
-			    'Accept': 'application/json',
-			    'Content-Type': 'application/x-www-form-urlencoded',
-	            'Access-Control-Allow-Origin': '*',
-	            'origin': 'https://www.atkoinc.nl/callback'
-			  }
-			};
-			if (localStorage.getItem('platform') == 'mobile') {
-				// if the user is on mobile execute this:
-			    cordova.plugin.http.sendRequest(token_url, settings, function(response) {
-			      alert(JSON.parse(response.data))
-			    }, function(response) {
-					alert('Some error is coming...');
-			    	alert(JSON.stringify(response));
-			    });
 
-			} else {
-				// if the user is in the browser, do this:
-				$.ajax(settings)
-				.done(function (response) {
-			      alert(JSON.parse(response.data))
-				})
-				.fail(function (response) {
-					alert('Some error is coming...');
-			    	alert(JSON.stringify(response));
-				});				
+
+	function setProducts(productArray) {
+		var lastProductIndex = localStorage.getItem('lastProductIndex')
+		for (i = 0; i < 3; i++) {
+			if (productArray[i].image) {
+				$(".lbl_image_"+i).attr('src',productArray[i].image);
+				$(".lbl_image_"+i).show();
 			}
-		
-
-}
+			$(".lbl_title_"+i).text(productArray[i].title);
+			$(".lbl_subtitle_"+i).text(productArray[i].subtitle);
+			$(".lbl_intro_"+i).text(productArray[i].intro);
+			$(".lbl_price_"+i).text(productArray[i].price);
+		}
+		if (lastProductIndex) {
+			lastProductIndex = parseInt(lastProductIndex);
+			if (productArray[lastProductIndex].image) {
+				$(".lbl_image_buy").attr('src',productArray[lastProductIndex].image);
+				$(".lbl_image_buy").show();
+			}
+			$(".lbl_description_buy").text(productArray[lastProductIndex].description);
+			$(".lbl_title_buy").text(productArray[lastProductIndex].title);
+			$(".lbl_subtitle_buy").text(productArray[lastProductIndex].subtitle);
+			$(".lbl_price_buy").text(productArray[lastProductIndex].price);
+		}
 	}
