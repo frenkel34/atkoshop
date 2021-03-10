@@ -11,10 +11,10 @@ window.settings = {
 	"app": {
 		"name": "Atko Shop",
 		"color": "#ff4486",
-		"title": "Shop till u drop!",
+		"title": "Atko Shop: Till u drop!",
 		"logging": true,
-		"yourname": 'Frankemus Maximus',
-		"buy_label": "Purchase Now",
+		"yourname": 'Frank',
+		"buy_label": "Buy Now",
 		"pay_label": "Pay up",
 		"ecommerce": true
 	}
