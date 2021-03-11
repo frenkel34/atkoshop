@@ -326,27 +326,27 @@ function getTokenValidity(jwtToken) {
 
 		// Change thew top buttons based on the page that is being displayed
 		if (page === 'profile') {
-			$("#lbl_title").text('Who is '+ firstname +'?');
+			$("#lbl_title").text(settings.app.headers.profile.title);
 			$(".lbl_firstname").text(firstname);
-			$("#lbl_oneliner").text('All we know about you');
-			$("#btn_header_primary").text('Home');
+			$("#lbl_oneliner").text(settings.app.headers.profile.subtitle);
+			$("#btn_header_primary").text(settings.app.headers.profile.button_caption);
 			$("#btn_header_primary").attr('targetpage','home')
 			$("#btn_header_primary").addClass('lnk_home');
 			$("#btn_header_secondary").text('Debug');
 			$("#btn_header_secondary").addClass('lnk_tokens');
 		} else {
 			if (validateToken('id_token') === true) {
-				$("#lbl_title").text('Welcome '+ firstname);
-				$("#lbl_oneliner").text('Always come back for more');
-				$("#btn_header_primary").text('Home');
+				$("#lbl_title").text(settings.app.headers.authenticated.title);
+				$("#lbl_oneliner").text(settings.app.headers.authenticated.subtitle);
+				$("#btn_header_primary").text(settings.app.headers.authenticated.button_caption);
 				$("#btn_header_primary").addClass('lnk_home');
 				$("#btn_header_secondary").text('Debug');
 				$("#btn_header_secondary").addClass('lnk_tokens');
 			} else {
-				$("#lbl_title").text('Welcome');
-				$("#lbl_oneliner").text('Rest insured, we have you covered');
+				$("#lbl_title").text(settings.app.headers.unauthenticated.title);
+				$("#lbl_oneliner").text(settings.app.headers.unauthenticated.subtitle);
 				$(".btn_buynow").hide();
-				$("#btn_header_primary").text('Login');
+				$("#btn_header_primary").text(settings.app.headers.unauthenticated.button_caption);
 				$("#btn_header_primary").addClass('lnk_login');
 				$("#btn_header_secondary").text('Register');
 				$("#btn_header_secondary").addClass('lnk_register');

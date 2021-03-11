@@ -9,6 +9,9 @@ window.settings = {
 	},
 	"urls": {}, // See settings below
 	"app": {
+		"run_local": true,
+		"local_address": "http://localhost:8000",
+		"hosted_address": "https://atkoinsurance.netlify.app",
 		"name": "Atko Finance",
 		"color": "#0000ff",
 		"title": "Atko Insurance",
@@ -22,7 +25,25 @@ window.settings = {
 			"https://images.pexels.com/photos/17739/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
 			"https://images.pexels.com/photos/17679/pexels-photo.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
 			"https://images.pexels.com/photos/4475524/pexels-photo-4475524.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-			]
+			],
+		"headers": {
+			"profile": {
+				"title": "Your profile",
+				"subtitle": "This is what we got on you",
+				"button_caption": "Home"
+			},
+			"unauthenticated": {
+				"title": "Please login",
+				"subtitle": "Check your policies and imvoices",
+				"button_caption": "Lets do it"
+			},
+			"authenticated": {
+				"title": "Your personal portal",
+				"subtitle": "There is nothing you cant do here!",
+				"button_caption": "Home"
+			}
+
+		}
 	}
 }
 
@@ -37,9 +58,14 @@ if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|
 		window.settings.urls.oktalogout 	= settings.okta.oktaurl + '/login/signout?fromURI=https://www.atkoinc.nl/app/?message=okta session ended'
 	} else {
 		window.settings.platform 			= 'browser';
-		window.settings.urls.url 			= 'https://atkoinsurance.netlify.app';
-		window.settings.urls.renewurl 		= 'https://atkoinsurance.netlify.app';
-		window.settings.urls.callbackurl 	= 'https://atkoinsurance.netlify.app';
+		if (settings.app.run_local == true) {
+			browser_address = window.settings.app.local_address
+		} else {
+			browser_address = window.settings.app.hosted_address
+		}
+		window.settings.urls.url 			= browser_address;
+		window.settings.urls.renewurl 		= browser_address;
+		window.settings.urls.callbackurl 	= browser_address;
 		window.settings.urls.oktalogout 	= settings.okta.oktaurl + '/login/signout?fromURI='+ settings.urls.url;
 	}
 
@@ -71,7 +97,3 @@ productArray = [{
 	"price": '',
 	"description": "Duis eleifend rhoncus odio quis ornare. Ut a tincidunt arcu. Cras suscipit at augue eget euismod. Maecenas imperdiet porta lorem sed vestibulum. Phasellus massa leo, laoreet non turpis in, efficitur sagittis mauris. Etiam maximus tincidunt velit, at accumsan arcu lacinia eget. Cras sodales purus feugiat mi ullamcorper aliquam. In dictum dui dui. Vivamus ac efficitur dui. Phasellus porta quis nisl nec auctor."
 }];
-
-
-
-
