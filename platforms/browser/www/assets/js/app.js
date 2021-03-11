@@ -8,6 +8,7 @@ $(document).ready(function(){
     if (settings.app.ecommerce === false) {
 	    $(".ecommerce").hide();
     }
+
     $("#img_news_1").attr('src', settings.app.images[0])
     $("#img_news_2").attr('src', settings.app.images[1])
     $("#img_news_3").attr('src', settings.app.images[2])
