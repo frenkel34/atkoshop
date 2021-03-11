@@ -26,7 +26,39 @@
 </p>
 
 ## Step by step deployment
-This will be added soon.
+This guide will enable you to setup both the web application as well as the iOS application (Apple developer account required).
+
+1. Install the required components
+To be able to compile and run these apps, ensure these components are up to date and ready to go:
+
+Install Homebrew. Follow the steps on the How to Install Homebrew on a Mac instruction guide to install Homebrew. (https://treehouse.github.io/installation-guides/mac/homebrew)
+
+Install Node.js if it is not already present
+```
+brew install node
+```
+
+Install Cordova via NPM (installed as part of Node.js)
+```
+npm install -g cordova
+```
+
+Install Xcode: [instructions here](https://apps.apple.com/us/app/xcode/id497799835)
+
+2. Create a Cordova project
+Create a blank Cordova project using the command-line tool. Navigate to the directory where you wish to create your project and type:
+```
+cordova create Atkoshop
+```
+
+After creating a Cordova project, navigate to the project directory. From the project directory, you need to add a platform for which you want to build your app.
+
+```
+cordova platform add browser
+cordova platform add ios
+```
+
+[More to come, work in progress]
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
