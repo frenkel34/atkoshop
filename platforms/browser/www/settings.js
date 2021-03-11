@@ -22,7 +22,25 @@ window.settings = {
 			"https://www.carmax.com/~/media/images/carmax/com/articles/best-luxury-cars/09-2018-audi-s5-sportback-premium-plus_evox.jpg",
 			"https://www.carmax.com/~/media/images/carmax/com/articles/best-luxury-cars/05-2020-bmw-4-series-m4_evox.jpg",
 			"https://www.carmax.com/~/media/images/carmax/com/articles/best-luxury-cars/04-2018-porsche-panamera-4s-executive_12595_cc1280_032_0l.jpg"
-			]
+			],
+		"headers": {
+			"profile": {
+				"title": "Your profile",
+				"subtitle": "This is what we got on you",
+				"button_caption": "Home"
+			},
+			"unauthenticated": {
+				"title": "Please login",
+				"subtitle": "Registered users get crazy discounts",
+				"button_caption": "Lets do it"
+			},
+			"authenticated": {
+				"title": "Welcome to our lil' webshop",
+				"subtitle": "Happy shopping, go nuts!",
+				"button_caption": "Home"
+			}
+
+		}
 	}
 }
 

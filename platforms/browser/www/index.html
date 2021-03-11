@@ -17,13 +17,13 @@
   License: This code is licensed under MIT
 
   App settings:
-	okta.oktaurl: 				The (custom) url Okta runs on, e.g. "https://subdomain.okta.com"
-	okta.clientid: 				The client id of the application in Okta, e.g. "A11A111AAA1A11A1A1"
-	okta.authorizationserver: 	The "default" or custom authorization server in Okta, e.g. "default" or "A11A111AAA1"
-	okta.basic_scopes: 			The basic scopes the app needs for OIDC, e.g. "openid profile"
-	okta.access_low_scope: 		The name of the scope for basic non-sensitive access in Okta, e.g. "access_low"
-	okta.access_full_scope: 	The name of the scope for basic non-sensitive access in Okta, e.g. "access_full"
-	urls.platform: 				The type of platform the user is on, e.g. "mobile" or "browser"
+	okta.oktaurl 				The (custom) url Okta runs on, e.g. "https://subdomain.okta.com"
+	okta.clientid 				The client id of the application in Okta, e.g. "A11A111AAA1A11A1A1"
+	okta.authorizationserver 	The "default" or custom authorization server in Okta, e.g. "default" or "A11A111AAA1"
+	okta.basic_scopes 			The basic scopes the app needs for OIDC, e.g. "openid profile"
+	okta.access_low_scope 		The name of the scope for basic non-sensitive access in Okta, e.g. "access_low"
+	okta.access_full_scope 		The name of the scope for basic non-sensitive access in Okta, e.g. "access_full"
+	urls.platform 				The type of platform the user is on, e.g. "mobile" or "browser"
 	urls.url 					The url of the app itself, e.g. "http://localhost" for browser or "nl.atkoinc.shop" for mobile
 	urls.renewurl 				The url to callback to on renewing the tokens, e.g. "http://localhost" for browser or an Apple Universal Link for iOS
 	urls.callbackurl 			The url to callback to, e.g. "http://localhost" for browser or an Apple Universal Link for iOS
@@ -51,7 +51,7 @@
 <html>
   <head>
     <link rel="icon" type="image/png" href="images/icon.png" />
-    <title>Visit okta.com</title>
+    <title>Okta demo app</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <meta http-equiv="cache-control" content="Private" />
@@ -67,8 +67,8 @@
         <header id="header" class="container">
         <!-- html frame: header and menu -->
             <div id="logo">
-              <h1><a class="lbl_app_name" href="index.html">Cordova</a></h1>
-              <span>a demo by <a target ="_new" href="https://www.okta.com">Okta inc</a></span>
+              <h1><a class="lbl_app_name" href="index.html">Cordova demo</a></h1>
+              <span>a demo by Okta inc</span>
             </div>
         <!-- html frame: menu items -->
             <nav id="nav">
@@ -225,7 +225,7 @@
                 <!-- html frame: Four more images -->
                   <div id="sidebar">
                     <section class="widget thumbnails">
-                      <h3>Newest products</h3>
+                      <h3>News</h3>
                       <div class="grid">
                         <div class="row gtr-50">
                           <div class="col-6"><a href="#" class="image fit"><img id="img_news_1" class="news_image" style="display:none;" src="" alt="" /></a></div>
