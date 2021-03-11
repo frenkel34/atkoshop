@@ -16,7 +16,13 @@ window.settings = {
 		"yourname": 'Frank',
 		"buy_label": "Buy Now",
 		"pay_label": "Pay up",
-		"ecommerce": true
+		"ecommerce": true,
+		"images": [
+			"https://www.carmax.com/~/media/images/carmax/com/articles/best-luxury-cars/07-2018-mercedes-benz-c-class-amg-c63-s.jpg",
+			"https://www.carmax.com/~/media/images/carmax/com/articles/best-luxury-cars/09-2018-audi-s5-sportback-premium-plus_evox.jpg",
+			"https://www.carmax.com/~/media/images/carmax/com/articles/best-luxury-cars/05-2020-bmw-4-series-m4_evox.jpg",
+			"https://www.carmax.com/~/media/images/carmax/com/articles/best-luxury-cars/04-2018-porsche-panamera-4s-executive_12595_cc1280_032_0l.jpg"
+			]
 	}
 }
 

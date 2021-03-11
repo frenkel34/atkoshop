@@ -35,6 +35,7 @@
 	app.buy_label 				Default "Buy" but in non-ecommerce it overwrites some buttons and labels e.g. to "Subscribe"
 	app.pay_label 				Default "Pay" but in non-ecommerce it overwrites some buttons and labels e.g. to "Confirm"
 	app.ecommerce 				Set to false to hide price and payment options
+	app.images 					Array with image urls for "News" section
 --> 
 
 <!-- Adding in required libraries -->
@@ -227,10 +228,10 @@
                       <h3>Newest products</h3>
                       <div class="grid">
                         <div class="row gtr-50">
-                          <div class="col-6"><a href="#" class="image fit"><img src="images/4.jpg" alt="" /></a></div>
-                          <div class="col-6"><a href="#" class="image fit"><img src="images/5.jpg" alt="" /></a></div>
-                          <div class="col-6"><a href="#" class="image fit"><img src="images/6.jpg" alt="" /></a></div>
-                          <div class="col-6"><a href="#" class="image fit"><img src="images/7.jpg" alt="" /></a></div>
+                          <div class="col-6"><a href="#" class="image fit"><img id="img_news_1" class="news_image" style="display:none;" src="" alt="" /></a></div>
+                          <div class="col-6"><a href="#" class="image fit"><img id="img_news_2" class="news_image" style="display:none;" src="" alt="" /></a></div>
+                          <div class="col-6"><a href="#" class="image fit"><img id="img_news_3" class="news_image" style="display:none;" src="" alt="" /></a></div>
+                          <div class="col-6"><a href="#" class="image fit"><img id="img_news_4" class="news_image" style="display:none;" src="" alt="" /></a></div>                        
                         </div>
                       </div>
                     </section>

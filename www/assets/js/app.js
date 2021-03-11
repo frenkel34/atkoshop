@@ -8,6 +8,13 @@ $(document).ready(function(){
     if (settings.app.ecommerce === false) {
 	    $(".ecommerce").hide();
     }
+    
+    $("#img_news_1").attr('src', settings.app.images[0])
+    $("#img_news_2").attr('src', settings.app.images[1])
+    $("#img_news_3").attr('src', settings.app.images[2])
+    $("#img_news_4").attr('src', settings.app.images[3])
+    $(".news_image").show();
+
     $("h1").css('background', settings.app.color);
     document.title = settings.app.title;
     $("#logo").show();
