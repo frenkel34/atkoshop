@@ -9,7 +9,7 @@ window.settings = {
 	},
 	"urls": {}, // See settings below
 	"app": {
-		"run_local": true,
+		"run_local": false,
 		"local_address": "http://localhost:8000",
 		"hosted_address": "https://atkoinsurance.netlify.app",
 		"name": "Atko Finance",
