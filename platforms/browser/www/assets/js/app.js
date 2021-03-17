@@ -34,7 +34,7 @@ $(document).ready(function(){
     writeLog('*** Handling app event = '+ event);
     switch(event) {
       case 'login':
-      // Event: Whenuser clicks the login button on home
+      // Event: When user clicks the login button on home
         var login_code          = getParameterByName('code');
         if (login_code) {
           var login_scopes        = window.settings.okta.basic_scopes + ' ' + settings.okta.access_low_scope + ' offline_access'
@@ -104,7 +104,18 @@ $(document).ready(function(){
       case 'confirmation':
         startApp('buy_step_3');
         break;
- 
+
+      case 'token':
+        // Login the user
+        var codeVerifier        = generateCodeVerifier();
+        var codeChallenge       = generateCodeChallenge(codeVerifier);
+        var login_scopes        = settings.okta.basic_scopes + ' ' + settings.okta.access_low_scope + ' offline_access'
+        var login_redirecturi   = settings.urls.callbackurl;
+        localStorage.setItem('codeverifier', codeVerifier);
+        localStorage.setItem('event', 'login')
+        // Redirect to Okta and get authorization code
+        getAuthorisationCode(codeChallenge, login_scopes, login_redirecturi);
+
       default:
         localStorage.removeItem('lastProductIndex')
         startApp('home');
