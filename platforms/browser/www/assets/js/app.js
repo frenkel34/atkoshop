@@ -118,7 +118,7 @@ $(document).ready(function(){
 
       default:
         localStorage.removeItem('lastProductIndex')
-        startApp('home');
+        startApp('profile');
     }    
   })
 
