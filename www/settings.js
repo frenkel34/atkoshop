@@ -3,7 +3,7 @@ window.settings = {
 		"oktaurl": "https://finance.atkoinc.nl/",
 		"clientid": "0oa1cewk0vC82i4kZ0x7",
 		"authorizationserver": "default",
-		"basic_scopes": "openid profile address phone",
+		"basic_scopes": "openid profile address phone access_full",
 		"access_low_scope": "access_low",
 		"access_full_scope": "access_full"
 	},
