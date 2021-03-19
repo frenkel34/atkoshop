@@ -33,7 +33,7 @@ window.settings = {
 				"button_caption": "Start"
 			},
 			"unauthenticated": {
-				"title": "Atko Trucks",
+				"title": "Toto Trucks",
 				"subtitle": "Own it!",
 				"button_caption": "Sign on"
 			},

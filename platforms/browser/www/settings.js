@@ -9,7 +9,7 @@ window.settings = {
 	},
 	"urls": {}, // See settings below
 	"app": {
-		"run_local": true,
+		"run_local": false,
 		"local_address": "http://localhost:8000",
 		"hosted_address": "https://tototrucks.netlify.app",
 		"name": "Shop Toto",
@@ -33,7 +33,7 @@ window.settings = {
 				"button_caption": "Start"
 			},
 			"unauthenticated": {
-				"title": "Atko Trucks",
+				"title": "Toto Trucks",
 				"subtitle": "Own it!",
 				"button_caption": "Sign on"
 			},
