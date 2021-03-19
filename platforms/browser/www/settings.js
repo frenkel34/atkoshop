@@ -9,7 +9,7 @@ window.settings = {
 	},
 	"urls": {}, // See settings below
 	"app": {
-		"run_local": true,
+		"run_local": false,
 		"local_address": "http://localhost:8000",
 		"hosted_address": "https://atkotrucks.netlify.app",
 		"name": "Atko Trucks",
@@ -30,17 +30,17 @@ window.settings = {
 			"profile": {
 				"title": "Your profile",
 				"subtitle": "This is what we got on you",
-				"button_caption": "Home"
+				"button_caption": "Garage"
 			},
 			"unauthenticated": {
-				"title": "Please login",
-				"subtitle": "Registered users get crazy discounts",
-				"button_caption": "Lets do it"
+				"title": "Atko Trucks",
+				"subtitle": "Login for crazy discounts",
+				"button_caption": "Login"
 			},
 			"authenticated": {
-				"title": "Welcome to our lil' webshop",
-				"subtitle": "Happy shopping, go nuts!",
-				"button_caption": "Home"
+				"title": "Howdy partner!",
+				"subtitle": "Lets us know how we can help",
+				"button_caption": "Garage"
 			}
 
 		}
