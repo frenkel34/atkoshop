@@ -11,36 +11,36 @@ window.settings = {
 	"app": {
 		"run_local": false,
 		"local_address": "http://localhost:8000",
-		"hosted_address": "https://atkotrucks.netlify.app",
-		"name": "Atko Trucks",
-		"color": "#1251b5",
-		"title": "Webshop: Atko",
+		"hosted_address": "https://tototrucks.netlify.app",
+		"name": "Shop Toto",
+		"color": "#000000",
+		"title": "Webshop: Toto",
 		"logging": true,
-		"yourname": 'Frank',
+		"yourname": 'Terry Tate',
 		"buy_label": "Buy Now",
 		"pay_label": "Pay",
 		"ecommerce": true,
 		"images": [
-			"https://www.volvotrucks.nl/content/dam/volvo/volvo-trucks/masters/press-releases/2020/feb/pr-2952-range/1860x1050-R2A8182.jpg",
-			"https://www.volvotrucks.nl/content/dam/volvo/volvo-trucks/masters/press-releases/2020/feb/pr-2952-fmx/banner.jpg",
-			"https://www.volvotrucks.nl/content/dam/volvo/volvo-trucks/masters/press-releases/2020/feb/pr-2952-fh/high-res-08A3977-FH-4x2-semi-trailer-long-haul-on-road.jpg",
-			"https://www.volvotrucks.nl/content/dam/volvo/volvo-trucks/masters/press-releases/2020/feb/pr-2952-awareness/1860x1050-VTT_komp1_V001.jpg"
+			"https://www.macktrucks.com/-/media/images/blog-images/pps_1648_cropped.png",
+			"https://www.macktrucks.com/-/media/images/blog-images/colinmcguire_adm0119_a_e5a2965-thumb.jpg",
+			"https://www.macktrucks.com/-/media/images/blog-images/heavy-lifting-required-thumb-large.jpg",
+			"https://www.macktrucks.com/-/media/images/blog-images/pps_1648_cropped.png"
 			],
 		"headers": {
 			"profile": {
 				"title": "Your profile",
 				"subtitle": "This is what we got on you",
-				"button_caption": "Garage"
+				"button_caption": "Start"
 			},
 			"unauthenticated": {
 				"title": "Atko Trucks",
-				"subtitle": "Login for crazy discounts",
-				"button_caption": "Login"
+				"subtitle": "Own it!",
+				"button_caption": "Sign on"
 			},
 			"authenticated": {
 				"title": "Howdy partner!",
 				"subtitle": "Lets us know how we can help",
-				"button_caption": "Garage"
+				"button_caption": "Start"
 			}
 
 		}
@@ -76,25 +76,25 @@ if (settings.app.logging) {
 
 // Product settings
 productArray = [{
-	"title": "Atko FH",
-	"subtitle": "Designed for international transport",
-	"image": "https://www.volvotrucks.nl/nl-nl/trucks/trucks/new-heavy-duty-range/_jcr_content/root/responsivegrid/layoutcontainer_copy/columncontrol/parsys1/teaser.coreimg.jpeg/1582975923115/volvo-trucks-features-volvo-fh-frontview.jpeg",
+	"title": "Toto Mayhem",
+	"subtitle": "Born of the American spirit",
+	"image": "https://www.macktrucks.com/-/media/images/product-images/trucks/anthem_card.png",
 	"intro": "Donec quis finibus erat, a maximus ligula. Nulla hendrerit magna turpis, ut porta metus ornare nec. In sit amet mattis justo. In id fermentum ante, nec aliquam dolor. Vivamus ut mauris tempus tellus vulputate pharetra. Maecenas laoreet leo sapien, a aliquam orci accumsan eu.",
-	"price": '$ 115.000',
+	"price": '$ 99.000',
 	"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse at efficitur mauris. Quisque eros nulla, pulvinar ac efficitur non, tempor at ante. Etiam facilisis molestie magna, gravida maximus massa molestie ut. Nunc ac velit finibus, blandit purus sed, tempor erat. Aliquam posuere augue scelerisque rutrum congue. Donec quis finibus erat, a maximus ligula. Nulla hendrerit magna turpis, ut porta metus ornare nec. In sit amet mattis justo. In id fermentum ante, nec aliquam dolor. Vivamus ut mauris tempus tellus vulputate pharetra. Maecenas laoreet leo sapien, a aliquam orci accumsan eu. Nunc quis nulla rhoncus, convallis lectus id, posuere erat. Integer sit amet metus nec risus eleifend porta nec eget odio."
 }, {
-	"title": "Atko FH16",
-	"subtitle": "Powerful and elegant",
-	"image": "https://www.volvotrucks.nl/nl-nl/trucks/trucks/new-heavy-duty-range/_jcr_content/root/responsivegrid/layoutcontainer_copy/columncontrol/parsys2/teaser.coreimg.jpeg/1582975932582/volvo-trucks-features-volvo-fh16-frontview.jpeg",
+	"title": "Toto Rock",
+	"subtitle": "carry heavy loads while staying nimble",
+	"image": "https://www.macktrucks.com/-/media/images/product-images/trucks/granite_card4.png",
 	"intro": "Donec quis finibus erat, a maximus ligula. Nulla hendrerit magna turpis, ut porta metus ornare nec. In sit amet mattis justo. In id fermentum ante, nec aliquam dolor. Vivamus ut mauris tempus tellus vulputate pharetra. Maecenas laoreet leo sapien, a aliquam orci accumsan eu.",
-	"price": '$ 144.000',
+	"price": '$ 180.000',
 	"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse at efficitur mauris. Quisque eros nulla, pulvinar ac efficitur non, tempor at ante. Etiam facilisis molestie magna, gravida maximus massa molestie ut. Nunc ac velit finibus, blandit purus sed, tempor erat. Aliquam posuere augue scelerisque rutrum congue. Donec quis finibus erat, a maximus ligula. Nulla hendrerit magna turpis, ut porta metus ornare nec. In sit amet mattis justo. In id fermentum ante, nec aliquam dolor. Vivamus ut mauris tempus tellus vulputate pharetra. Maecenas laoreet leo sapien, a aliquam orci accumsan eu. Nunc quis nulla rhoncus, convallis lectus id, posuere erat. Integer sit amet metus nec risus eleifend porta nec eget odio."
 }, {
-	"title": "Atko FM",
-	"subtitle": "Comfort for on the road",
-	"image": "https://www.volvotrucks.nl/nl-nl/trucks/trucks/new-heavy-duty-range/_jcr_content/root/responsivegrid/layoutcontainer_4627/columncontrol/parsys1/teaser.coreimg.jpeg/1582975946767/volvo-trucks-features-volvo-fm-frontview.jpeg",
+	"title": "Toto RL",
+	"subtitle": "carry heavy loads while staying nimble",
+	"image": "https://www.macktrucks.com/-/media/images/product-images/trucks/lr_card4.png",
 	"intro": "Donec quis finibus erat, a maximus ligula. Nulla hendrerit magna turpis, ut porta metus ornare nec. In sit amet mattis justo. In id fermentum ante, nec aliquam dolor. Vivamus ut mauris tempus tellus vulputate pharetra. Maecenas laoreet leo sapien, a aliquam orci accumsan eu.",
-	"price": '$221.500',
+	"price": '$288.500',
 	"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse at efficitur mauris. Quisque eros nulla, pulvinar ac efficitur non, tempor at ante. Etiam facilisis molestie magna, gravida maximus massa molestie ut. Nunc ac velit finibus, blandit purus sed, tempor erat. Aliquam posuere augue scelerisque rutrum congue. Donec quis finibus erat, a maximus ligula. Nulla hendrerit magna turpis, ut porta metus ornare nec. In sit amet mattis justo. In id fermentum ante, nec aliquam dolor. Vivamus ut mauris tempus tellus vulputate pharetra. Maecenas laoreet leo sapien, a aliquam orci accumsan eu. Nunc quis nulla rhoncus, convallis lectus id, posuere erat. Integer sit amet metus nec risus eleifend porta nec eget odio."
 }];
 
