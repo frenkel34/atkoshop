@@ -38,8 +38,8 @@ window.settings = {
 				"button_caption": "Login"
 			},
 			"authenticated": {
-				"title": "Howdy partner!",
-				"subtitle": "Lets us know how we can help",
+				"title": "Welcome",
+				"subtitle": "You are logged in succesfully",
 				"button_caption": "Garage"
 			}
 
