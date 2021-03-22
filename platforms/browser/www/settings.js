@@ -39,8 +39,8 @@ window.settings = {
 			},
 			"authenticated": {
 				"title": "Howdy partner!",
-				"subtitle": "Lets us know how we can help",
-				"button_caption": "Start"
+				"subtitle": "You are authenticated, shop till you drop!",
+				"button_caption": "Go!"
 			}
 
 		}
