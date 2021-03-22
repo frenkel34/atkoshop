@@ -1,7 +1,7 @@
 window.settings = {
 	"okta": {
 		"oktaurl": "https://account.atkoinc.nl",
-		"clientid": "0oaxtwtxevuxjmNTW0h7",
+		"clientid": "0oaxvw2ynlVA6FcgH0h7",
 		"authorizationserver": "default",
 		"basic_scopes": "openid profile",
 		"access_low_scope": "access_low",
