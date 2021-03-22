@@ -12,7 +12,7 @@ window.settings = {
 		"run_local": false,
 		"local_address": "http://localhost:8000",
 		"hosted_address": "https://tototrucks.netlify.app",
-		"name": "Shop Toto",
+		"name": "Shop on Toto",
 		"color": "#000000",
 		"title": "Webshop: Toto",
 		"logging": true,
