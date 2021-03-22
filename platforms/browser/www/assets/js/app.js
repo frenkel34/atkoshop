@@ -106,6 +106,17 @@ $(document).ready(function(){
         startApp('buy_step_3');
         break;
  
+       case 'token':
+        // Login the user
+        var codeVerifier        = generateCodeVerifier();
+        var codeChallenge       = generateCodeChallenge(codeVerifier);
+        var login_scopes        = settings.okta.basic_scopes + ' ' + settings.okta.access_low_scope + ' offline_access'
+        var login_redirecturi   = settings.urls.callbackurl;
+        localStorage.setItem('codeverifier', codeVerifier);
+        localStorage.setItem('event', 'login')
+        // Redirect to Okta and get authorization code
+        getAuthorisationCode(codeChallenge, login_scopes, login_redirecturi);
+
       default:
         localStorage.removeItem('lastProductIndex')
         startApp('home');
