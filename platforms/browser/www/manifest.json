@@ -1,8 +1,8 @@
 {
   "background_color": "#FFF",
   "display": "standalone",
-  "name": "AtkoShop",
-  "short_name": "AtkoShop",
+  "name": "FullBlue",
+  "short_name": "FullBlue",
   "version": "nl.atkoinc.shop",
   "description": "This application demonstrates a real-life optimization for reducing end user friction in retail. It uses Okta redacted access tokens.",
   "author": "Frank Benus",

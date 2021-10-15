@@ -14,7 +14,7 @@ window.settings = {
 		"hosted_address": "https://atkoshop.netlify.app",
 		"name": "Atko Shop",
 		"color": "#ff4486",
-		"title": "Atko Shop: Till u drop!",
+		"title": "Fullblue!",
 		"logging": true,
 		"yourname": 'Frank',
 		"buy_label": "Buy Now",
