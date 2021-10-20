@@ -17,8 +17,8 @@ window.settings = {
 		"title": "MP3 speler kopen?",
 		"logging": true,
 		"yourname": 'Pieter',
-		"buy_label": "Nu kopen",
-		"pay_label": "Naar kassa",
+		"buy_label": "Buy",
+		"pay_label": "Pay",
 		"ecommerce": true,
 		"images": [
 			"https://image.coolblue.nl/max/500x500/products/1366184",
