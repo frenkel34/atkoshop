@@ -7,19 +7,32 @@
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 */
 
+.img_product {
+	max-height: 400px;
+}
+
+p {
+	color: #d6d6d6;
+}
+
+.lbl_subtitle {
+	color: #f60;
+
+}
+
 .astrix {
 	font-size: 1.35em;
-	color: #ff4486;
+	color: #f60;
 }
 
 .fullaccess:hover {
-	background-color: #ff4486 !important;
+	background-color: #f60 !important;
 }
 
 .price_batch {
 	font-size: 120%;
 	font-weight: bold;
-	color:#ff4486;
+	color:#f60;
 }
 
 #banner-wrapper {
@@ -155,13 +168,13 @@ input, select, textarea {
 		background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0)), url("images/bg01.png");
 		background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0)), url("images/bg01.png");
 		background-image: linear-gradient(top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0)), url("images/bg01.png");
-		background-color: #f7f7f7;
+		background-color: #0090e3;
 		background-position: top left, top left;
 		background-repeat: repeat-x, repeat;
 		background-size: 100% 30em, auto;
 		font-family: 'Open Sans', sans-serif;
 		font-size: 13pt;
-		color: #696969;
+		color: #fff;
 		font-weight: 300;
 		line-height: 2.25em;
 	}
@@ -1654,8 +1667,10 @@ input, select, textarea {
 
 		.image img {
 			display: block;
-			width: 100%;
-			border-radius: 8px;
+		    width: 50%;
+		    border-radius: 8px;
+		    margin-left: 25%;
+		    padding-top: 50px;
 		}
 
 		.image.fit {

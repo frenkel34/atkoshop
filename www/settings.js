@@ -13,7 +13,7 @@ window.settings = {
 		"local_address": "http://localhost:8000",
 		"hosted_address": "https://bluemp3.netlify.app",
 		"name": "BlueMp3",
-		"color": "#ff4486",
+		"color": "#f60",
 		"title": "MP3 speler kopen?",
 		"logging": true,
 		"yourname": 'Pieter',
