@@ -11,14 +11,14 @@ window.settings = {
 	"app": {
 		"run_local": true,
 		"local_address": "http://localhost:8000",
-		"hosted_address": "https://bluemp3.netlify.app",
-		"name": "BlueMp3",
+		"hosted_address": "https://atkoshop.netlify.app",
+		"name": "BlueMp3Man",
 		"color": "#f60",
 		"title": "MP3 speler kopen?",
 		"logging": true,
 		"yourname": 'Pieter',
-		"buy_label": "Nu kopen",
-		"pay_label": "Naar kassa",
+		"buy_label": "Buy",
+		"pay_label": "Pay",
 		"ecommerce": true,
 		"images": [
 			"https://image.coolblue.nl/max/500x500/products/1366184",

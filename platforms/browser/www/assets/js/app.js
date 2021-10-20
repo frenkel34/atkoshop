@@ -21,6 +21,16 @@ $(document).ready(function(){
     $("#nav").show();
     $("#lbl_settings").text(JSON.stringify(settings, null, 2));
 
+    // Set urls to JS libraries based on app url
+    // These are overwritten so that the Okta Sign In Widget will also use these files
+    $(".lib_jquery").attr('src', browser_address+'assets/js/jquery.min.js');
+    $(".lib_dropotron").attr('src', browser_address+'assets/js/jquery.dropotron.min.js');
+    $(".lib_browser").attr('src', browser_address+'assets/js/browser.min.js');
+    $(".lib_break").attr('src', browser_address+'assets/js/breakpoints.min.js');
+    $(".lib_util").attr('src', browser_address+'assets/js/util.js');
+    $(".lib_main").attr('src', browser_address+'assets/js/main.js');
+    $(".lib_app").attr('src', browser_address+'app.js');
+
     // Determine the event/state the app is handling based on url or localStorage
     var event = getParameterByName('event');
     if (event) {
@@ -111,6 +121,32 @@ $(document).ready(function(){
         startApp('home');
     }    
   })
+
+  function setProducts(productArray) {
+    var lastProductIndex = localStorage.getItem('lastProductIndex')
+    for (i = 0; i < 3; i++) {
+      if (productArray[i].image) {
+        $(".lbl_image_"+i).attr('src',productArray[i].image);
+        $(".lbl_image_"+i).show();
+      }
+      $(".lbl_title_"+i).text(productArray[i].title);
+      $(".lbl_subtitle_"+i).text(productArray[i].subtitle);
+      $(".lbl_intro_"+i).text(productArray[i].intro);
+      $(".lbl_price_"+i).text(productArray[i].price);
+    }
+    if (lastProductIndex) {
+      lastProductIndex = parseInt(lastProductIndex);
+      if (productArray[lastProductIndex].image) {
+        $(".lbl_image_buy").attr('src',productArray[lastProductIndex].image);
+        $(".lbl_image_buy").show();
+      }
+      $(".lbl_description_buy").text(productArray[lastProductIndex].description);
+      $(".lbl_title_buy").text(productArray[lastProductIndex].title);
+      $(".lbl_subtitle_buy").text(productArray[lastProductIndex].subtitle);
+      $(".lbl_price_buy").text(productArray[lastProductIndex].price);
+    }
+  }
+
 
   // Execute user interaction with the application
   $(document).on('click', '.lnk_login', function(){

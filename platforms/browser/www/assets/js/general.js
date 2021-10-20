@@ -361,27 +361,3 @@ function getTokenValidity(jwtToken) {
 
 
 
-	function setProducts(productArray) {
-		var lastProductIndex = localStorage.getItem('lastProductIndex')
-		for (i = 0; i < 3; i++) {
-			if (productArray[i].image) {
-				$(".lbl_image_"+i).attr('src',productArray[i].image);
-				$(".lbl_image_"+i).show();
-			}
-			$(".lbl_title_"+i).text(productArray[i].title);
-			$(".lbl_subtitle_"+i).text(productArray[i].subtitle);
-			$(".lbl_intro_"+i).text(productArray[i].intro);
-			$(".lbl_price_"+i).text(productArray[i].price);
-		}
-		if (lastProductIndex) {
-			lastProductIndex = parseInt(lastProductIndex);
-			if (productArray[lastProductIndex].image) {
-				$(".lbl_image_buy").attr('src',productArray[lastProductIndex].image);
-				$(".lbl_image_buy").show();
-			}
-			$(".lbl_description_buy").text(productArray[lastProductIndex].description);
-			$(".lbl_title_buy").text(productArray[lastProductIndex].title);
-			$(".lbl_subtitle_buy").text(productArray[lastProductIndex].subtitle);
-			$(".lbl_price_buy").text(productArray[lastProductIndex].price);
-		}
-	}
