@@ -23,6 +23,10 @@
     <a href="https://github.com/frenkel34/atkoshop/issues">Report Bug</a><br />
     <a href="https://github.com/frenkel34/atkoshop/issues">Request Feature</a>
   </p>
+  <h3 align="center">Settings file</h3>
+  <p>
+    The settings file is used by your Okta hosted sign in widget as well as by the app itself. When you apply the code from okta-siw.html to Okta, it should work out-of-the-box.
+  </p>
 </p>
 
 ## Step by step deployment
