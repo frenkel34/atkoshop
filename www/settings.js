@@ -12,7 +12,7 @@ window.settings = {
 		"run_local": true,
 		"local_address": "http://localhost:8000",
 		"hosted_address": "https://atkoshop.netlify.app",
-		"name": "BlueMp3",
+		"name": "BlueMp3Man",
 		"color": "#f60",
 		"title": "MP3 speler kopen?",
 		"logging": true,
