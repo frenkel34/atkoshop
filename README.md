@@ -1,5 +1,5 @@
 <!-- PROJECT LOGO -->
-<br />
+<br /> 
 <p align="center">
   <a href="https://github.com/frenkel34/atkoshop">
     <img src="https://atkoshop.netlify.app/images/icon.png" alt="Logo" width="80" height="80">
@@ -60,7 +60,15 @@ cordova platform add browser
 cordova platform add ios
 ```
 
-7. [More to come, work in progress]
+7. Now the platforms are there, you can copy the files from this repo into the file structure and start playing around. To check if all is well, run the browser app like this.
+```
+cordova run browser
+```
+
+8. The app should be running and open in a new browser.
+
+
+
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
