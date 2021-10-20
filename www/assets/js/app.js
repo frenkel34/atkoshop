@@ -21,6 +21,16 @@ $(document).ready(function(){
     $("#nav").show();
     $("#lbl_settings").text(JSON.stringify(settings, null, 2));
 
+    // Set urls to JS libraries based on app url
+    // These are overwritten so that the Okta Sign In Widget will also use these files
+    $(".lib_jquery").attr('src', browser_address+'assets/js/jquery.min.js');
+    $(".lib_dropotron").attr('src', browser_address+'assets/js/jquery.dropotron.min.js');
+    $(".lib_browser").attr('src', browser_address+'assets/js/browser.min.js');
+    $(".lib_break").attr('src', browser_address+'assets/js/breakpoints.min.js');
+    $(".lib_util").attr('src', browser_address+'assets/js/util.js');
+    $(".lib_main").attr('src', browser_address+'assets/js/main.js');
+    $(".lib_app").attr('src', browser_address+'app.js');
+
     // Determine the event/state the app is handling based on url or localStorage
     var event = getParameterByName('event');
     if (event) {
