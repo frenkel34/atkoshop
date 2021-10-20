@@ -16,7 +16,7 @@ window.settings = {
 		"color": "#f60",
 		"title": "MP3 speler kopen?",
 		"logging": true,
-		"yourname": 'Pieter',
+		"yourname": "Pieter",
 		"buy_label": "Buy",
 		"pay_label": "Pay",
 		"ecommerce": true,

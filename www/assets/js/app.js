@@ -5,10 +5,16 @@ $(document).ready(function(){
     $(".lbl_your_name").text(settings.app.yourname);
     $(".btn_buynow").text(settings.app.buy_label);
     $(".pay_label").text(settings.app.pay_label);
-    if (settings.app.ecommerce === false) {
+    if (settings.app.ecommerce == false) {
 	    $(".ecommerce").hide();
+    } else {
+      $(".ecommerce").show();
     }
  
+    // Some Okta specific classes and styles
+    $("h2").css({"background-color": settings.app.color +" !important" });
+
+
     $("#img_news_1").attr('src', settings.app.images[0])
     $("#img_news_2").attr('src', settings.app.images[1])
     $("#img_news_3").attr('src', settings.app.images[2])

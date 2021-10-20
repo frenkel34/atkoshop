@@ -5,8 +5,12 @@ $(document).ready(function(){
     $(".lbl_your_name").text(settings.app.yourname);
     $(".btn_buynow").text(settings.app.buy_label);
     $(".pay_label").text(settings.app.pay_label);
-    if (settings.app.ecommerce === false) {
+    if (settings.app.ecommerce == false) {
 	    $(".ecommerce").hide();
+//      $(".btn_buynow").hide();
+    } else {
+      $(".ecommerce").show();
+//      $(".btn_buynow").show();
     }
  
     $("#img_news_1").attr('src', settings.app.images[0])
